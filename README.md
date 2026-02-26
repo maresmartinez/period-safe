@@ -2,6 +2,10 @@
 
 A local-first period tracking app. Your data never leaves your device — no accounts, no servers, no cloud sync.
 
+## Features
+
+- **Period Logging** — Log periods with start/end dates, flow intensity (light/medium/heavy), symptoms (cramps, fatigue, headache, and more), mood (1–5), and free-text notes. Supports creating and editing entries.
+
 ## Privacy
 
 All data is stored exclusively in your browser's IndexedDB and localStorage. No data is ever transmitted to any server.

@@ -222,6 +222,42 @@ npm run test:watch   # Watch mode
 
 ---
 
+## Spec 03 — Implementation Notes (Period Logging Form)
+
+**Files:**
+- `src/components/period-form/PeriodForm.jsx` — form component
+- `src/components/period-form/PeriodForm.test.jsx` — 11 behavior tests (RTL + Vitest)
+
+**Component API:**
+```jsx
+<PeriodForm
+  initialData={period | null}   // null = create mode; Period object = edit mode
+  onSuccess={(period) => void}  // called with saved period on success
+  onCancel={() => void}         // called when user clicks Cancel
+/>
+```
+
+**Symptoms list (predefined):**
+`['cramps', 'fatigue', 'headache', 'bloating', 'mood swings', 'back pain', 'nausea', 'breast tenderness']`
+
+**Validation approach (submit-time only, not on-blur):**
+- Inline errors rendered below each field with `role="alert"` + `aria-describedby` on input
+- Errors clear when user changes the affected field value
+- Rules: startDate required & not in future; endDate ≥ startDate if provided
+
+**Edit mode:** Detected via `Boolean(initialData?.id)`. Calls `updatePeriod` instead of `createPeriod`.
+
+**Mood picker:** 5 toggle buttons with `aria-pressed` + `aria-label="Mood: N out of 5"`. Click same value to deselect (returns `null`).
+
+**ARIA structure:**
+- Symptoms in `<fieldset>` / `<legend>` (implicit `role="group"`)
+- Mood buttons in `<div role="group" aria-labelledby="mood-label">`
+- Notes char count uses `aria-live="polite"`
+
+**No new hooks/utilities created** — uses `useToast` from spec 08 and `periodService` from spec 02 directly.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)
