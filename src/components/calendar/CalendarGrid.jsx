@@ -109,8 +109,9 @@ export default function CalendarGrid({
       keyboardNavRef.current = false;
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFocusedDate(new Date(currentYear, currentMonth, 1));
-  }, [currentMonth, currentYear]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentMonth, currentYear]);
 
   // When focusedDate changes, focus the corresponding DOM cell (only if grid is active)
   useEffect(() => {

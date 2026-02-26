@@ -41,7 +41,7 @@ export default function ImportExportPage() {
       const json = await exportData();
       downloadJSON(json, getExportFilename());
       showToast('Data exported successfully.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Export failed. Please try again.', 'error');
     } finally {
       setExporting(false);
@@ -106,7 +106,7 @@ export default function ImportExportPage() {
         `Import complete. ${count} period${count !== 1 ? 's' : ''} ${strategy === 'overwrite' ? 'restored' : 'merged'}.`,
         'success'
       );
-    } catch (err) {
+    } catch {
       showToast('Import failed. Your existing data was not changed.', 'error');
     } finally {
       setPendingPayload(null);
@@ -129,7 +129,7 @@ export default function ImportExportPage() {
       await clearAllPeriods();
       resetSettings();
       showToast('All data cleared.', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to clear data. Please try again.', 'error');
     } finally {
       setClearing(false);

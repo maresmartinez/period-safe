@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   getSettings,
   saveSettings as svcSave,
@@ -10,15 +10,7 @@ export function applyTheme(theme) {
 }
 
 export default function useSettings() {
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const s = getSettings();
-    setSettings(s);
-    applyTheme(s.theme);
-    setLoading(false);
-  }, []);
+  const [settings, setSettings] = useState(() => getSettings());
 
   const saveSettings = useCallback((partial) => {
     const updated = svcSave(partial);
@@ -36,5 +28,5 @@ export default function useSettings() {
     return defaults;
   }, []);
 
-  return { settings, saveSettings, resetSettings, loading };
+  return { settings, saveSettings, resetSettings, loading: false };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Card from '../Card.jsx';
 import Button from '../Button.jsx';
 import LoadingSpinner from '../LoadingSpinner.jsx';
@@ -9,14 +9,8 @@ export default function SettingsPage() {
   const { settings, saveSettings, resetSettings, loading } = useSettings();
   const { showToast } = useToast();
 
-  const [cycleLength, setCycleLength] = useState('');
+  const [cycleLength, setCycleLength] = useState(String(settings.cycleLengthAverage));
   const [cycleLengthError, setCycleLengthError] = useState('');
-
-  useEffect(() => {
-    if (settings) {
-      setCycleLength(String(settings.cycleLengthAverage));
-    }
-  }, [settings]);
 
   if (loading) {
     return (
@@ -42,7 +36,8 @@ export default function SettingsPage() {
   };
 
   const handleReset = () => {
-    resetSettings();
+    const defaults = resetSettings();
+    setCycleLength(String(defaults.cycleLengthAverage));
     setCycleLengthError('');
     showToast({ type: 'info', message: 'Settings reset to defaults.' });
   };
