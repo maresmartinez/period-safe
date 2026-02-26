@@ -44,3 +44,39 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run lint` | Lint source files |
 | `npm run preview` | Preview production build locally |
+| `npm run check-size` | Check gzipped JS bundle size (<100KB limit) |
+
+## Deployment
+
+The app is deployed to [Vercel](https://vercel.com) via the Vercel GitHub integration.
+
+### How it works
+
+- **Production:** Every push to `main` triggers an automatic deploy to the production URL.
+- **Previews:** Every pull request automatically gets a preview deployment. Vercel posts the preview URL as a PR comment.
+- **CI:** GitHub Actions runs lint → test → build → bundle size check on every push and PR (see `.github/workflows/ci.yml`). The CI check must pass before merging.
+
+### First-time setup
+
+1. Install the [Vercel GitHub app](https://vercel.com/integrations/github) and link the repo.
+2. In the Vercel dashboard, set **Output Directory** to `dist` (or rely on `vercel.json`).
+3. Enable **Preview Deployments** in the Vercel project settings.
+
+No GitHub Secrets are required — the Vercel GitHub integration handles authentication automatically.
+
+### Branch protection (recommended)
+
+In GitHub → Settings → Branches → Add rule for `main`:
+- Require a pull request before merging
+- Require the `CI` status check to pass before merging
+
+### Environment variables
+
+All Vite environment variables must be prefixed with `VITE_` to be accessible in client code.
+
+```
+# .env.local (not committed)
+VITE_APP_ENV=development
+```
+
+For production, set environment variables in the Vercel dashboard under Settings → Environment Variables.

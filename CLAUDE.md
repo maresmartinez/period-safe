@@ -465,6 +465,22 @@ Export filename: `periodsafe-export-YYYY-MM-DD.json`
 
 ---
 
+## Spec 11 — Implementation Notes (CI/CD & Deployment)
+
+**CI workflow:** `.github/workflows/ci.yml` — runs on every push and PR; steps: `npm ci` → `npm run lint` → `npm run test` → `npm run build` → `node scripts/check-bundle-size.js`
+
+**CD:** Vercel GitHub integration handles production deploys (push to `main`) and PR preview deploys automatically — no `deploy.yml` needed.
+
+**Bundle size check:** `scripts/check-bundle-size.js` — gzips all `dist/assets/*.js` files; fails with exit 1 if total > 100KB. Run locally with `npm run check-size`.
+
+**`vercel.json`:** `outputDirectory: "dist"`, `framework: "vite"`, catch-all rewrite to `/index.html`. Rewrite is redundant with `HashRouter` but kept as good practice.
+
+**Environment variables:** Must be prefixed `VITE_` to be accessible via `import.meta.env.VITE_*`. No secrets required for MVP — Vercel integration uses its own OAuth token.
+
+**HashRouter note:** URLs use `#/` (e.g. `/#/settings`) — no server-side routing config needed for Vercel.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)

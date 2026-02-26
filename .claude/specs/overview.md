@@ -20,10 +20,10 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 08 | `08-ui-design-system.md` | Shared primitives: Button, Card, Modal, Toast, LoadingSpinner; Tailwind tokens | [x] |
 | 09 | `09-navigation-layout.md` | App shell, Header, React Router v6 routes, bottom nav, lazy loading, 404 | [x] |
 | 10 | `10-accessibility-audit.md` | axe-core in Vitest, keyboard nav, ARIA audit, contrast check, screen reader | [ ] |
-| 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [ ] |
+| 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [x] |
 | 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [ ] |
 
-**Progress: 9 / 12 complete**
+**Progress: 10 / 12 complete**
 
 ---
 
