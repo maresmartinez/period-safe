@@ -158,6 +158,32 @@ npm run test:watch   # Watch mode
 
 ---
 
+## Spec 01 — Implementation Notes (Scaffold)
+
+**Actual package versions installed (2026-02):**
+- React 19.2.0 (not 18; template defaulted to 19)
+- Vite 7.3.1
+- Tailwind CSS **4.2.1** (v4, not v3 — breaking change from spec)
+- ESLint 9.39.3 (flat config format — uses `eslint.config.js`, not `.eslintrc.cjs`)
+- Vitest 4.0.18
+
+**Tailwind v4 deviations from spec (v3 expected):**
+- No `tailwind.config.js` — v4 uses CSS-first configuration
+- Uses `@tailwindcss/vite` Vite plugin instead of PostCSS plugin
+- Dark mode configured in CSS: `@variant dark (&:where(.dark, .dark *));`
+- CSS entry: `@import 'tailwindcss';` + `@theme { --font-sans: 'Inter', ... }`
+- `autoprefixer` and `postcss` installed but not actively used (Vite plugin handles it)
+
+**ESLint v9 deviations (flat config):**
+- Uses `eslint.config.js` (ESM flat config) instead of `.eslintrc.cjs`
+- `eslint-plugin-jsx-a11y` uses `.flatConfigs.recommended`
+- `eslint-plugin-react` uses `.configs.flat.recommended` and `.configs.flat['jsx-runtime']`
+
+**Vitest config note:**
+- `passWithNoTests: true` added so `npm run test` exits 0 with no test files yet
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)

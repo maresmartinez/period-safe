@@ -10,7 +10,7 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 
 | # | Filename | Description | Done? |
 |---|----------|-------------|-------|
-| 01 | `01-project-scaffold.md` | Vite + React init, Tailwind, ESLint/Prettier, folder structure, blank shell | [ ] |
+| 01 | `01-project-scaffold.md` | Vite + React init, Tailwind, ESLint/Prettier, folder structure, blank shell | [x] |
 | 02 | `02-indexeddb-storage.md` | IndexedDB init, schema, full `periodService.js` CRUD, test setup | [ ] |
 | 03 | `03-period-logging-form.md` | `PeriodForm` component — all fields, validation, wired to service, toasts | [ ] |
 | 04 | `04-calendar-view.md` | Month grid calendar, period ranges, modal detail, keyboard nav, ARIA | [ ] |
@@ -23,7 +23,7 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [ ] |
 | 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [ ] |
 
-**Progress: 0 / 12 complete**
+**Progress: 1 / 12 complete**
 
 ---
 
