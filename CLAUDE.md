@@ -356,6 +356,40 @@ checkCycleAnomalies(cycleLengths)      // → { flagged: boolean, reason: string
 
 ---
 
+## Spec 06 — Implementation Notes (Settings)
+
+**Files:**
+- `src/hooks/useSettings.js` — hook wrapping `settingsService`
+- `src/components/settings/SettingsPage.jsx` — three-section settings UI
+- `src/components/settings/SettingsPage.test.jsx` — 16 tests
+
+**`useSettings()` returns:**
+```js
+{
+  settings,        // current UserSettings object (null while loading)
+  saveSettings,    // (partial) => UserSettings — merges and persists; also applies theme
+  resetSettings,   // () => UserSettings — resets to defaults + applies theme
+  loading,         // boolean (false immediately after first useEffect run)
+}
+```
+
+**Dark mode implementation (Tailwind v4):**
+- `@variant dark (&:where(.dark, .dark *));` already in `src/index.css` — no `tailwind.config.js` needed
+- Apply/remove `dark` class on `document.documentElement`: `document.documentElement.classList.toggle('dark', theme === 'dark')`
+- `applyTheme(theme)` helper exported from `useSettings.js`
+- `saveSettings({ theme })` automatically calls `applyTheme` when `theme` key is present
+
+**Theme initialization (no flash):** `src/main.jsx` reads `periodSafe_userSettings` from localStorage before React renders and adds `dark` class if `settings.theme === 'dark'`
+
+**Settings sections:**
+1. **Cycle** — number input `min="21" max="35"`, save button, inline validation error (`role="alert"`)
+2. **Reminders** — `role="switch" aria-checked={false}` toggle, `disabled`, opacity-50, "Coming soon" copy
+3. **Appearance** — two `aria-pressed` buttons (Light/Dark); instant apply on click, no separate save
+
+**Reminders are UI-only for MVP** — no browser notification API called
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)
