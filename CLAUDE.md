@@ -181,6 +181,44 @@ npm run test:watch   # Watch mode
 
 **Vitest config note:**
 - `passWithNoTests: true` added so `npm run test` exits 0 with no test files yet
+- `environmentOptions.jsdom.url: 'http://localhost'` required for jsdom 28
+- jsdom 28 has file-backed localStorage (emits `--localstorage-file` warning) — replaced with a localStorage mock in `src/test-setup.js`
+- Fake timer tests: use `fireEvent` (synchronous) instead of `userEvent` when `vi.useFakeTimers()` is active
+
+---
+
+## Spec 02 — Implementation Notes (IndexedDB Storage)
+
+**Packages installed:**
+- `idb` (latest) — IndexedDB wrapper
+- `fake-indexeddb` (dev dep) — imported via `import 'fake-indexeddb/auto'` in `src/test-setup.js`
+
+**DB reset between tests:**
+- Call `resetDB()` exported from `src/services/db.js` to clear the singleton (not global reassignment)
+- Follow with `clearAllPeriods()` and `resetSettings()` in `beforeEach`
+
+**Error codes:** `'DB_ERROR'`, `'NOT_FOUND'`, `'VALIDATION_ERROR'`
+
+**settingsService:** localStorage-based, not IndexedDB. Functions: `getSettings()`, `saveSettings(data)`, `resetSettings()`
+
+---
+
+## Spec 08 — Implementation Notes (UI Design System)
+
+**Tailwind v4 color tokens:** Defined in `src/index.css` inside `@theme {}` using CSS custom properties (`--color-rose-500`, etc.) — **no `tailwind.config.js`** (v4 CSS-first config).
+
+**Button variants:** `primary` (rose-500), `secondary` (neutral-100/700 dark), `ghost` (transparent), `danger` (red-600)
+**Button sizes:** `sm` (min-h-[40px]), `md` (min-h-[48px]), `lg` (min-h-[52px])
+
+**Modal:** React Portal to `document.body`; focus trap via manual `Tab` keydown handler; ESC calls `onClose`; `aria-modal="true"`, `role="dialog"`, title linked via `useId()`
+
+**Toast system:**
+- `src/stores/ToastContext.jsx` — `ToastProvider` + `useToastContext()`
+- `src/hooks/useToast.js` — `useToast()` → `{ showToast }`
+- `src/components/Toast.jsx` — `ToastContainer` (renders via Portal); `role="alert"`, `aria-live="assertive"` for errors, `"polite"` for others
+- `ToastProvider` wraps `App.jsx`; `ToastContainer` placed inside provider
+
+**No external focus-trap package** — focus trap implemented manually in `Modal.jsx`
 
 ---
 
