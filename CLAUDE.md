@@ -258,6 +258,63 @@ npm run test:watch   # Watch mode
 
 ---
 
+## Spec 04 — Implementation Notes (Calendar View)
+
+**Files:**
+- `src/utils/dateUtils.js` — `getCalendarDays`, `isDateInRange`, `formatDisplayDate`, `formatShortDate`, `toISODateString`
+- `src/components/calendar/useCalendar.js` — `useCalendar(initialMonth?, initialYear?)` hook
+- `src/components/calendar/CalendarCell.jsx` — memoized individual day cell
+- `src/components/calendar/PeriodDetailModal.jsx` — read-only period detail using `Modal` primitive
+- `src/components/calendar/CalendarGrid.jsx` — main calendar component
+- `src/components/calendar/CalendarGrid.test.jsx` — 18 tests
+- `src/hooks/usePeriodData.js` — `usePeriodData()` hook → `{ periods, loading, error, createPeriod, updatePeriod, deletePeriod }`
+
+**CalendarGrid API:**
+```jsx
+<CalendarGrid
+  periods={Period[]}              // from usePeriodData
+  predictions={Prediction[]}      // may be empty array
+  onPeriodClick={(period) => void} // optional, called on period cell click
+  initialMonth={0}                // optional, for testing only (0-11)
+  initialYear={2024}              // optional, for testing only
+/>
+```
+
+**useCalendar hook:**
+```js
+const { currentMonth, currentYear, goToPrevMonth, goToNextMonth, goToToday } = useCalendar(initialMonth?, initialYear?);
+// currentMonth: 0–11; currentYear: full year
+// initialMonth/Year: optional overrides for testing; default to current date
+```
+
+**Period visual states (bar-and-circle pattern):**
+- `start`: absolute bar spans right-half of cell; circle on top → creates rounded-left pill
+- `mid`: absolute bar spans full width; circle on top → seamless connection
+- `end`: absolute bar spans left-half of cell; circle on top → creates rounded-right pill
+- `single`: no bar; just the circle — full rounded pill
+- Predicted day: circle with `bg-rose-100` + dashed border (no bar; only `predictedStartDate` marked for now — spec 05 will enrich)
+
+**Keyboard navigation (handled on `<table onKeyDown>`):**
+- ArrowLeft/Right/Up/Down: move focus ±1 day / ±1 week
+- Home/End: start/end of current week (Sunday/Saturday)
+- PageUp/PageDown: same day previous/next month
+- Enter/Space: open PeriodDetailModal for period days; no-op otherwise
+- Month auto-navigates when focusedDate crosses a month boundary
+
+**focusedDate management:**
+- `focusedDate` state drives which cell gets `tabIndex={0}` and `data-date` for DOM focus
+- Clicking any cell sets `focusedDate`; period cells also open the modal
+- `keyboardNavRef` boolean prevents the `useEffect` from resetting `focusedDate` to the 1st when keyboard nav triggers a month change
+
+**ARIA grid pattern:** `<table role="grid">` → `<thead><tr role="row"><th role="columnheader">` → `<tbody><tr role="row"><td role="gridcell" aria-label aria-selected tabIndex>`
+
+**dateUtils key behavior:**
+- All date operations use local time (new Date(y, m-1, d)) to avoid UTC offset bugs
+- `getCalendarDays` always returns a multiple of 7 (35 or 42 cells)
+- Period range comparison uses lexicographic ISO string comparison (`currentStr <= endStr`)
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)
