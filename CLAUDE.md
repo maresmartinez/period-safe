@@ -390,6 +390,46 @@ checkCycleAnomalies(cycleLengths)      // → { flagged: boolean, reason: string
 
 ---
 
+## Spec 07 — Implementation Notes (Import/Export)
+
+**Files:**
+- `src/utils/dataTransfer.js` — pure functions (no React deps)
+- `src/utils/dataTransfer.test.js` — 22 unit tests
+- `src/components/import-export/ImportExportPage.jsx` — full UI
+
+**Export JSON envelope shape:**
+```json
+{
+  "schemaVersion": 1,
+  "exportedAt": "<ISO timestamp>",
+  "appName": "PeriodSafe",
+  "data": {
+    "periods": [ /* Period[] */ ],
+    "settings": { /* UserSettings */ }
+  }
+}
+```
+Export filename: `periodsafe-export-YYYY-MM-DD.json`
+
+**`validateImportShape(parsed)` — what it checks:**
+- Root must be an object (not array/null)
+- `schemaVersion` must be a number ≤ `SCHEMA_VERSION`
+- `data` must be an object
+- `data.periods` must be an array; each period needs `id` (string) and valid `startDate` (ISO)
+- `data.settings` being null/missing is recoverable (defaults used); array is rejected
+- Returns `{ valid: boolean, errors: string[] }`
+- File size > 10MB rejected by the UI before parsing (constant `MAX_IMPORT_FILE_SIZE`)
+
+**Import strategies:**
+- **overwrite** — calls `clearAllPeriods()` + `saveSettings(file.settings)`, then inserts all periods with preserved IDs
+- **merge** — checks `getPeriod(period.id)` before inserting; skips duplicates; does NOT apply file settings
+
+**ID preservation note:** `createPeriod` always generates new UUIDs, so import uses `db.put('periods', record)` directly via `initDB()` to preserve original IDs from the export file. This is critical for merge-mode deduplication.
+
+**UI structure:** Privacy banner → Export card → Import card (hidden `<input type="file">`) → Danger zone (clear all). Overwrite/merge choice presented in a Modal after successful validation.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)
