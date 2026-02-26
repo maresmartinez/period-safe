@@ -315,6 +315,47 @@ const { currentMonth, currentYear, goToPrevMonth, goToNextMonth, goToToday } = u
 
 ---
 
+## Spec 05 — Implementation Notes (Cycle Prediction)
+
+**Files:**
+- `src/utils/cyclePrediction.js` — pure functions, no React deps
+- `src/hooks/usePeriodPrediction.js` — `usePeriodPrediction(periods)` hook
+- `src/utils/cyclePrediction.test.js` — 31 unit tests
+
+**Public API (`cyclePrediction.js`):**
+```js
+analyzeCycles(periods)          // → CycleSummary | null (null if < 2 periods)
+predictNextPeriods(periods, count = 3) // → Prediction[] ([] if < 2 periods)
+checkCycleAnomalies(cycleLengths)      // → { flagged: boolean, reason: string|null }
+```
+
+**`usePeriodPrediction(periods)` returns:**
+```js
+{
+  predictions: Prediction[],    // empty if < 2 periods
+  cycleSummary: CycleSummary|null,
+  hasEnoughData: boolean,       // true if periods.length >= 3 (2+ complete cycles)
+  anomalyDetected: boolean,
+}
+```
+
+**Algorithm:**
+- Cycle length = days between consecutive `startDate` values (sorted ascending)
+- `averageCycleLength` = mean of cycle lengths
+- `variance` = population standard deviation of cycle lengths
+- `confidence` = `max(0, round(1 - variance / averageCycleLength, 2))`
+- `windowEarlyStart` = `predictedStartDate - floor(variance)` days
+- `windowLateStart` = `predictedStartDate + ceil(variance)` days
+- Predictions advance: `lastPeriodStartDate + round(averageCycleLength) * (i+1)`
+
+**Anomaly thresholds:** < 21 days or > 35 days → `anomalyFlag: true`
+
+**Calendar enrichment:** `buildPredictedDateSet` in `CalendarGrid.jsx` now marks the full window (`windowEarlyStart` → `windowLateStart`) as predicted days, displayed with rose-100 background + dashed border.
+
+**`endDate` irrelevant** — cycle length uses only `startDate`. Periods with `endDate: null` are handled fine.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)

@@ -6,6 +6,8 @@ A local-first period tracking app. Your data never leaves your device — no acc
 
 - **Period Logging** — Log periods with start/end dates, flow intensity (light/medium/heavy), symptoms (cramps, fatigue, headache, and more), mood (1–5), and free-text notes. Supports creating and editing entries.
 
+- **Cycle Prediction** — Automatically predicts upcoming period start dates based on the average of your past cycles. Predictions appear directly on the calendar as a highlighted window, giving you advance notice of when your next period is likely to arrive. The prediction window widens or narrows based on how consistent your cycles have been. Irregular cycles (shorter than 21 days or longer than 35 days) are flagged. All prediction computation happens locally in your browser — no data ever leaves your device.
+
 ## Privacy
 
 All data is stored exclusively in your browser's IndexedDB and localStorage. No data is ever transmitted to any server.

@@ -14,7 +14,7 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 02 | `02-indexeddb-storage.md` | IndexedDB init, schema, full `periodService.js` CRUD, test setup | [x] |
 | 03 | `03-period-logging-form.md` | `PeriodForm` component — all fields, validation, wired to service, toasts | [x] |
 | 04 | `04-calendar-view.md` | Month grid calendar, period ranges, modal detail, keyboard nav, ARIA | [x] |
-| 05 | `05-cycle-prediction.md` | `cyclePrediction.js` utility, `usePeriodPrediction` hook, calendar overlay | [ ] |
+| 05 | `05-cycle-prediction.md` | `cyclePrediction.js` utility, `usePeriodPrediction` hook, calendar overlay | [x] |
 | 06 | `06-settings.md` | Settings page, `UserSettings` in localStorage, theme toggle, persistence | [ ] |
 | 07 | `07-import-export.md` | JSON export/import, file download, shape validation, overwrite/merge prompt | [ ] |
 | 08 | `08-ui-design-system.md` | Shared primitives: Button, Card, Modal, Toast, LoadingSpinner; Tailwind tokens | [x] |
@@ -23,7 +23,7 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [ ] |
 | 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [ ] |
 
-**Progress: 5 / 12 complete**
+**Progress: 6 / 12 complete**
 
 ---
 

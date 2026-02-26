@@ -43,13 +43,20 @@ function buildPeriodDateMap(periods) {
 
 /**
  * Builds a Set of ISO date strings for all predicted period days.
- * Currently marks only the predictedStartDate; spec 05 will enrich this.
+ * Marks every day in the prediction window (windowEarlyStart → windowLateStart).
  */
 function buildPredictedDateSet(predictions) {
   const set = new Set();
   for (const pred of predictions) {
-    if (pred.predictedStartDate) {
-      set.add(pred.predictedStartDate);
+    const startStr = pred.windowEarlyStart ?? pred.predictedStartDate;
+    const endStr = pred.windowLateStart ?? pred.predictedStartDate;
+    if (!startStr) continue;
+
+    let currentStr = startStr;
+    while (currentStr <= endStr) {
+      set.add(currentStr);
+      const [y, m, d] = currentStr.split('-').map(Number);
+      currentStr = toISODateString(new Date(y, m - 1, d + 1));
     }
   }
   return set;

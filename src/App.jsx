@@ -2,9 +2,11 @@ import { ToastProvider } from './stores/ToastContext.jsx';
 import ToastContainer from './components/Toast.jsx';
 import CalendarGrid from './components/calendar/CalendarGrid.jsx';
 import usePeriodData from './hooks/usePeriodData.js';
+import usePeriodPrediction from './hooks/usePeriodPrediction.js';
 
 function AppContent() {
   const { periods, loading, error } = usePeriodData();
+  const { predictions } = usePeriodPrediction(periods);
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
@@ -25,7 +27,7 @@ function AppContent() {
             Loading…
           </p>
         ) : (
-          <CalendarGrid periods={periods} predictions={[]} />
+          <CalendarGrid periods={periods} predictions={predictions} />
         )}
       </main>
     </div>
