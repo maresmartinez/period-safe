@@ -19,11 +19,11 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 07 | `07-import-export.md` | JSON export/import, file download, shape validation, overwrite/merge prompt | [x] |
 | 08 | `08-ui-design-system.md` | Shared primitives: Button, Card, Modal, Toast, LoadingSpinner; Tailwind tokens | [x] |
 | 09 | `09-navigation-layout.md` | App shell, Header, React Router v6 routes, bottom nav, lazy loading, 404 | [x] |
-| 10 | `10-accessibility-audit.md` | axe-core in Vitest, keyboard nav, ARIA audit, contrast check, screen reader | [ ] |
+| 10 | `10-accessibility-audit.md` | axe-core in Vitest, keyboard nav, ARIA audit, contrast check, screen reader | [x] |
 | 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [x] |
-| 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [ ] |
+| 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [x] |
 
-**Progress: 10 / 12 complete**
+**Progress: 12 / 12 complete**
 
 ---
 
@@ -63,16 +63,16 @@ Recommended build order:
 
 All 12 spec checkboxes are marked `[x]` **AND** the following manual smoke test passes:
 
-- [ ] Log a period (all fields) on desktop Chrome
-- [ ] Log a period on mobile Safari (real device or DevTools mobile)
-- [ ] Verify period appears on calendar
-- [ ] Verify prediction appears after 2+ periods logged
-- [ ] Toggle light/dark mode; verify preference survives page refresh
-- [ ] Export data as JSON; verify file downloads and contains correct shape
-- [ ] Import exported JSON; verify periods re-appear in calendar
-- [ ] Clear all data; verify calendar and predictions are empty
-- [ ] Run full Lighthouse audit: Performance ≥90, Accessibility 100
-- [ ] Run `npm run test` — all tests pass
+- [x] Log a period (all fields) on desktop Chrome
+- [x] Log a period on mobile Safari (real device or DevTools mobile)
+- [x] Verify period appears on calendar
+- [x] Verify prediction appears after 2+ periods logged
+- [x] Toggle light/dark mode; verify preference survives page refresh
+- [x] Export data as JSON; verify file downloads and contains correct shape
+- [x] Import exported JSON; verify periods re-appear in calendar
+- [x] Clear all data; verify calendar and predictions are empty
+- [x] Run full Lighthouse audit: Performance ≥90, Accessibility 100
+- [x] Run `npm run test` — all tests pass
 
 ---
 

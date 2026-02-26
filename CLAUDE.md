@@ -481,6 +481,58 @@ Export filename: `periodsafe-export-YYYY-MM-DD.json`
 
 ---
 
+## Spec 12 — Implementation Notes (Performance & Polish)
+
+**Error Boundary component:** `src/components/ErrorBoundary.jsx` — class component using `getDerivedStateFromError()` and `componentDidCatch()`. Wraps all lazy-loaded routes in `App.jsx`. Shows user-friendly error UI with "Refresh the page" button on error; logs only non-sensitive error name/message (never user data).
+
+**Privacy Banner component:** `src/components/PrivacyBanner.jsx` — functional component with localStorage persistence key `periodSafe_privacyAcknowledged`. Displays on first visit with "Learn more" link opening a Modal with full privacy explanation. Fixed to bottom (above bottom nav on mobile). Uses `aria-live="polite"` for screen readers.
+
+**SEO meta tags:** Added to `index.html`:
+- `<meta name="description">` — app description for search results
+- `<meta name="theme-color" content="#f43f5e">` — browser chrome color
+- `<meta property="og:title">` and `<meta property="og:description">` — social sharing
+
+**Lighthouse CI config:** `.lighthouserc.json` — defines CI targets:
+- Performance: ≥ 90
+- Accessibility: = 100 (strict)
+- Best Practices: ≥ 90
+- SEO: ≥ 80
+Runs 3 iterations of Lighthouse on homepage and settings page.
+
+**Performance test:** `src/components/calendar/CalendarGrid.perf.test.jsx` — two perf tests:
+- 500 periods render in < 200ms
+- 100 periods render in < 50ms
+Uses `generateTestPeriods()` utility to seed 500+ periods spread across 14+ years, testing both rendering speed and calendar navigation responsiveness.
+
+**Smoke test docs:** `docs/smoke-test.md` — comprehensive manual test checklist covering:
+- Privacy banner on first visit
+- Full period logging workflow (create, edit, view)
+- Calendar month navigation + keyboard nav (desktop only)
+- Cycle prediction rendering
+- Settings (cycle length, dark/light mode)
+- Import/export workflow (overwrite & merge)
+- Clear all data workflow
+- Keyboard-only navigation
+- Browser compatibility (Chrome, Firefox, Safari, iOS, Android)
+
+**README finalization:** Includes all required MVP sections:
+- Privacy statement (top, prominent) → links to privacy banner in app
+- Features list (all MVP features)
+- Tech stack table
+- Setup & local dev instructions
+- CLI commands reference
+- Project folder structure
+- Deployment instructions (Vercel integration)
+- Accessibility statement + WCAG 2.1 AA claim
+- Testing instructions
+- Contributing guidelines
+- Known limitations (post-MVP features deferred)
+- License, Support, Changelog
+
+**App.jsx changes:** Now wraps routes in `<ErrorBoundary>` and includes `<PrivacyBanner />` before the main layout div.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)
