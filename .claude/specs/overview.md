@@ -18,12 +18,12 @@ Each spec file contains a "Slice Completion Checklist" — follow it before cons
 | 06 | `06-settings.md` | Settings page, `UserSettings` in localStorage, theme toggle, persistence | [x] |
 | 07 | `07-import-export.md` | JSON export/import, file download, shape validation, overwrite/merge prompt | [x] |
 | 08 | `08-ui-design-system.md` | Shared primitives: Button, Card, Modal, Toast, LoadingSpinner; Tailwind tokens | [x] |
-| 09 | `09-navigation-layout.md` | App shell, Header, React Router v6 routes, bottom nav, lazy loading, 404 | [ ] |
+| 09 | `09-navigation-layout.md` | App shell, Header, React Router v6 routes, bottom nav, lazy loading, 404 | [x] |
 | 10 | `10-accessibility-audit.md` | axe-core in Vitest, keyboard nav, ARIA audit, contrast check, screen reader | [ ] |
 | 11 | `11-ci-cd-deployment.md` | GitHub Actions workflow, Vercel config, preview deploys, bundle size CI | [ ] |
 | 12 | `12-performance-and-polish.md` | Lighthouse CI, error boundaries, perf check, privacy banner, smoke test | [ ] |
 
-**Progress: 8 / 12 complete**
+**Progress: 9 / 12 complete**
 
 ---
 

@@ -430,6 +430,41 @@ Export filename: `periodsafe-export-YYYY-MM-DD.json`
 
 ---
 
+## Spec 09 — Implementation Notes (Navigation/Layout)
+
+**Dependency added:** `react-router-dom` (added to production dependencies)
+
+**Router:** `HashRouter` in `src/main.jsx` — wraps the entire app so URLs use `#/` (e.g. `/#/settings`). Vercel-compatible without custom rewrite rules.
+
+**Route table:**
+| Path | Component | File |
+|------|-----------|------|
+| `/` | `CalendarPage` | `src/components/calendar/CalendarPage.jsx` |
+| `/log` | `PeriodFormPage` | `src/components/period-form/PeriodFormPage.jsx` |
+| `/settings` | `SettingsPage` | `src/components/settings/SettingsPage.jsx` |
+| `/export` | `ImportExportPage` | `src/components/import-export/ImportExportPage.jsx` |
+| `*` | `NotFoundPage` | `src/components/navigation/NotFoundPage.jsx` |
+
+**Page wrapper components (new):**
+- `CalendarPage.jsx` — loads data via `usePeriodData` + `usePeriodPrediction`, renders `CalendarGrid`, includes mobile FAB (`/log` link, fixed bottom-20 right-4, md:hidden)
+- `PeriodFormPage.jsx` — renders `PeriodForm` with `onSuccess`/`onCancel` both navigating to `/`
+
+**Navigation components (new in `src/components/navigation/`):**
+- `Header.jsx` — sticky top-0, z-20, h-14; app title links to `/`; settings gear icon links to `/settings`; "Local only" privacy badge (hidden on xs)
+- `BottomNav.jsx` — fixed bottom, md:hidden; 4 `NavLink` items with icons+labels; active = rose color
+- `TabNav.jsx` — hidden md:flex; horizontal tabs below header; active = rose border-b + rose text
+- `NotFoundPage.jsx` — minimal 404 page with "Go back home" link
+
+**App.jsx structure:** All page components are `React.lazy()`-loaded; wrapped in `<Suspense>` with `<LoadingSpinner>` fallback. `ToastProvider` + `ToastContainer` wrap everything. Layout: `Header` → `TabNav` → `<main>` → `BottomNav`.
+
+**main.jsx:** `HashRouter` wraps `<App />` in `StrictMode`. Theme-init code (dark class) runs before render.
+
+**Bug fixed:** `ImportExportPage.jsx` was using default import for `useToast` — corrected to named import `{ useToast }`.
+
+**Tests:** `src/components/navigation/Navigation.test.jsx` — 12 tests covering Header title, settings link, NotFoundPage heading + home link, BottomNav/TabNav active state highlighting per route.
+
+---
+
 ## Navigation
 
 - Progress tracker: [`.claude/specs/overview.md`](.claude/specs/overview.md)

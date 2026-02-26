@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import Button from '../Button.jsx';
 import Card from '../Card.jsx';
 import Modal from '../Modal.jsx';
-import useToast from '../../hooks/useToast.js';
+import { useToast } from '../../hooks/useToast.js';
 import {
   exportData,
   downloadJSON,

@@ -1,44 +1,44 @@
+import { lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './stores/ToastContext.jsx';
 import ToastContainer from './components/Toast.jsx';
-import CalendarGrid from './components/calendar/CalendarGrid.jsx';
-import usePeriodData from './hooks/usePeriodData.js';
-import usePeriodPrediction from './hooks/usePeriodPrediction.js';
+import Header from './components/navigation/Header.jsx';
+import BottomNav from './components/navigation/BottomNav.jsx';
+import TabNav from './components/navigation/TabNav.jsx';
+import LoadingSpinner from './components/LoadingSpinner.jsx';
 
-function AppContent() {
-  const { periods, loading, error } = usePeriodData();
-  const { predictions } = usePeriodPrediction(periods);
-
-  return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      <header className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          PeriodSafe
-        </h1>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 py-6">
-        {error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400 mb-4">
-            Failed to load periods: {error.message}
-          </p>
-        )}
-        {loading ? (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-8">
-            Loading…
-          </p>
-        ) : (
-          <CalendarGrid periods={periods} predictions={predictions} />
-        )}
-      </main>
-    </div>
-  );
-}
+const CalendarPage = lazy(() => import('./components/calendar/CalendarPage.jsx'));
+const PeriodFormPage = lazy(() => import('./components/period-form/PeriodFormPage.jsx'));
+const SettingsPage = lazy(() => import('./components/settings/SettingsPage.jsx'));
+const ImportExportPage = lazy(() => import('./components/import-export/ImportExportPage.jsx'));
+const NotFoundPage = lazy(() => import('./components/navigation/NotFoundPage.jsx'));
 
 function App() {
   return (
     <ToastProvider>
-      <AppContent />
       <ToastContainer />
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+        <Header />
+        <TabNav />
+        <main className="pb-20 md:pb-0 md:pt-4">
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-12">
+                <LoadingSpinner />
+              </div>
+            }
+          >
+            <Routes>
+              <Route path="/" element={<CalendarPage />} />
+              <Route path="/log" element={<PeriodFormPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/export" element={<ImportExportPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </main>
+        <BottomNav />
+      </div>
     </ToastProvider>
   );
 }

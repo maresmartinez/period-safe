@@ -1,7 +1,8 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { HashRouter } from 'react-router-dom';
+import './index.css';
+import App from './App.jsx';
 
 // Apply saved theme before first render to prevent flash of wrong theme
 try {
@@ -18,6 +19,8 @@ try {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </StrictMode>,
-)
+);
