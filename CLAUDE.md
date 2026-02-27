@@ -450,7 +450,7 @@ Export filename: `periodsafe-export-YYYY-MM-DD.json`
 - `PeriodFormPage.jsx` — renders `PeriodForm` with `onSuccess`/`onCancel` both navigating to `/`
 
 **Navigation components (new in `src/components/navigation/`):**
-- `Header.jsx` — sticky top-0, z-20, h-14; app title links to `/`; settings gear icon links to `/settings`; "Local only" privacy badge (hidden on xs)
+- `Header.jsx` — sticky top-0, z-20, h-14; app title links to `/`; settings gear icon links to `/settings`
 - `BottomNav.jsx` — fixed bottom, md:hidden; 4 `NavLink` items with icons+labels; active = rose color
 - `TabNav.jsx` — hidden md:flex; horizontal tabs below header; active = rose border-b + rose text
 - `NotFoundPage.jsx` — minimal 404 page with "Go back home" link
