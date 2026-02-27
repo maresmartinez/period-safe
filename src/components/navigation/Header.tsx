@@ -13,27 +13,6 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Privacy indicator */}
-          <span
-            className="hidden sm:flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500 select-none"
-            aria-label="Data stored locally only"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-3.5 h-3.5"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Local only
-          </span>
-
           {/* Settings icon link */}
           <Link
             to="/settings"

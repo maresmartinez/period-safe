@@ -27,12 +27,6 @@ describe('Header', () => {
     renderWithRouter(<Header />);
     expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
   });
-
-  it('shows "Local only" privacy indicator', () => {
-    renderWithRouter(<Header />);
-    // The label is visually hidden on small screens but the text is in the DOM
-    expect(screen.getByText(/local only/i)).toBeInTheDocument();
-  });
 });
 
 // ---------------------------------------------------------------------------

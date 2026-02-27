@@ -22,10 +22,10 @@ function App() {
     <ToastProvider>
       <ToastContainer />
       <PrivacyBanner />
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+      <div className="flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-900">
         <Header />
         <TabNav />
-        <main className="pb-20 md:pb-0 md:pt-4">
+        <main className="flex-1 pb-20 md:pb-0 md:pt-4">
           <ErrorBoundary>
             <Suspense
               fallback={
@@ -44,8 +44,8 @@ function App() {
               </Routes>
             </Suspense>
           </ErrorBoundary>
-          <Footer />
         </main>
+        <Footer />
         <BottomNav />
       </div>
     </ToastProvider>

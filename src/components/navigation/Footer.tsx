@@ -15,12 +15,12 @@ export default function Footer() {
           {/* Navigation links */}
           <nav aria-label="Footer navigation">
             <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
-              <li>
+                <li>
                 <Link
-                  to="/settings"
+                  to="/privacy"
                   className="text-neutral-500 dark:text-neutral-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded"
                 >
-                  Settings
+                  Privacy Philosophy
                 </Link>
               </li>
               <li>
@@ -39,8 +39,6 @@ export default function Footer() {
           {/* App info */}
           <div className="text-xs text-neutral-400 dark:text-neutral-500 flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <span>© {year} {APP_NAME}</span>
-            <span aria-hidden="true">·</span>
-            <span>v1.0</span>
           </div>
 
         </div>
