@@ -28,7 +28,7 @@ const FLOW_OPTIONS: FlowOption[] = [
 ];
 
 const MOOD_CONFIG: Record<1 | 2 | 3 | 4 | 5, { face: string; label: string }> = {
-  1: { face: '😣', label: 'Really Bad' },
+  1: { face: '😣', label: 'Horrible' },
   2: { face: '😟', label: 'Bad' },
   3: { face: '😐', label: 'Okay' },
   4: { face: '🙂', label: 'Good' },

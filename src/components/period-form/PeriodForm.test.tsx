@@ -159,7 +159,7 @@ describe('PeriodForm', () => {
       'aria-pressed',
       'true'
     );
-    expect(screen.getByRole('button', { name: /mood: really bad/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /mood: horrible/i })).toHaveAttribute(
       'aria-pressed',
       'false'
     );
