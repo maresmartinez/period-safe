@@ -1,11 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import usePeriodData from '../../hooks/usePeriodData.js';
 import usePeriodPrediction from '../../hooks/usePeriodPrediction.js';
 import CalendarGrid from './CalendarGrid.jsx';
 import LoadingSpinner from '../LoadingSpinner.jsx';
 
 export default function CalendarPage() {
-  const { periods, loading, error } = usePeriodData();
+  const { periods, loading, error, deletePeriod } = usePeriodData();
+  const navigate = useNavigate();
   const { predictions } = usePeriodPrediction(periods);
 
   if (loading) {
@@ -26,7 +27,12 @@ export default function CalendarPage() {
 
   return (
     <div className="relative">
-      <CalendarGrid periods={periods} predictions={predictions} />
+      <CalendarGrid
+        periods={periods}
+        predictions={predictions}
+        onEditPeriod={(period) => navigate('/log', { state: { period } })}
+        onDeletePeriod={deletePeriod}
+      />
 
       {/* FAB — mobile only, links to Log Period */}
       <Link

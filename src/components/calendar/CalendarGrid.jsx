@@ -68,14 +68,18 @@ function buildPredictedDateSet(predictions) {
  * @param {Object}     props
  * @param {Array}      props.periods      - Logged Period objects
  * @param {Array}      props.predictions  - Prediction objects (may be empty)
- * @param {Function}   [props.onPeriodClick] - Called with the Period when a period cell is clicked
- * @param {number}     [props.initialMonth]  - For testing: override initial month (0-11)
- * @param {number}     [props.initialYear]   - For testing: override initial year
+ * @param {Function}   [props.onPeriodClick]  - Called with the Period when a period cell is clicked
+ * @param {Function}   [props.onEditPeriod]   - Called with the Period when Edit is clicked in modal
+ * @param {Function}   [props.onDeletePeriod] - Called with the period id when delete is confirmed
+ * @param {number}     [props.initialMonth]   - For testing: override initial month (0-11)
+ * @param {number}     [props.initialYear]    - For testing: override initial year
  */
 export default function CalendarGrid({
   periods = [],
   predictions = [],
   onPeriodClick,
+  onEditPeriod,
+  onDeletePeriod,
   initialMonth,
   initialYear,
 }) {
@@ -335,6 +339,8 @@ export default function CalendarGrid({
       <PeriodDetailModal
         period={selectedPeriod}
         onClose={() => setSelectedPeriod(null)}
+        onEdit={(p) => { setSelectedPeriod(null); onEditPeriod?.(p); }}
+        onDelete={(id) => { onDeletePeriod?.(id); setSelectedPeriod(null); }}
       />
     </div>
   );
