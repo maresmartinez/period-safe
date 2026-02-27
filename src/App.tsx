@@ -5,6 +5,7 @@ import ToastContainer from './components/Toast.tsx';
 import Header from './components/navigation/Header.tsx';
 import BottomNav from './components/navigation/BottomNav.tsx';
 import TabNav from './components/navigation/TabNav.tsx';
+import Footer from './components/navigation/Footer.tsx';
 import LoadingSpinner from './components/LoadingSpinner.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import PrivacyBanner from './components/PrivacyBanner.tsx';
@@ -13,6 +14,7 @@ const CalendarPage = lazy(() => import('./components/calendar/CalendarPage.tsx')
 const PeriodFormPage = lazy(() => import('./components/period-form/PeriodFormPage.tsx'));
 const SettingsPage = lazy(() => import('./components/settings/SettingsPage.tsx'));
 const ImportExportPage = lazy(() => import('./components/import-export/ImportExportPage.tsx'));
+const PrivacyPage = lazy(() => import('./components/privacy/PrivacyPage.tsx'));
 const NotFoundPage = lazy(() => import('./components/navigation/NotFoundPage.tsx'));
 
 function App() {
@@ -37,10 +39,12 @@ function App() {
                 <Route path="/log" element={<PeriodFormPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/export" element={<ImportExportPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>
+          <Footer />
         </main>
         <BottomNav />
       </div>
