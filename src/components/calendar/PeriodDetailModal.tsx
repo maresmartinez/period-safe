@@ -5,12 +5,12 @@ import { formatDisplayDate } from '../../utils/dateUtils.ts';
 import type { Period, FlowLevel } from '../../types.ts';
 
 const FLOW_LABELS: Record<FlowLevel, string> = { light: 'Light', medium: 'Medium', heavy: 'Heavy' };
-const MOOD_LABELS: Record<1 | 2 | 3 | 4 | 5, string> = {
-  1: 'Very low',
-  2: 'Low',
-  3: 'Neutral',
-  4: 'Good',
-  5: 'Great',
+const MOOD_CONFIG: Record<1 | 2 | 3 | 4 | 5, { face: string; label: string }> = {
+  1: { face: '😣', label: 'Horrible' },
+  2: { face: '😟', label: 'Bad' },
+  3: { face: '😐', label: 'Okay' },
+  4: { face: '🙂', label: 'Good' },
+  5: { face: '😄', label: 'Great' },
 };
 
 interface PeriodDetailModalProps {
@@ -91,7 +91,9 @@ export default function PeriodDetailModal({ period, onClose, onEdit, onDelete }:
                   Mood
                 </dt>
                 <dd className="text-neutral-900 dark:text-neutral-100">
-                  {period.mood} / 5 &mdash; {MOOD_LABELS[period.mood]}
+                  <span aria-hidden="true">{MOOD_CONFIG[period.mood].face}</span>
+                  {' '}
+                  {MOOD_CONFIG[period.mood].label}
                 </dd>
               </div>
             )}
