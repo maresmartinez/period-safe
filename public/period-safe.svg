@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   sodipodi:docname="period-safe-logo.svg"
+   inkscape:export-filename="../../Code/period-safe/public/period-safe.svg"
+   inkscape:export-xdpi="32"
+   inkscape:export-ydpi="32"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="9.9876026"
+     inkscape:cx="25.23128"
+     inkscape:cy="24.079853"
+     inkscape:window-width="1496"
+     inkscape:window-height="822"
+     inkscape:window-x="0"
+     inkscape:window-y="33"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="48"
+       height="48"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path11"
+       style="fill:#c8beb7;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       d="M 23.998051,0.47343359 A 15.839516,15.63432 0 0 0 8.1614309,16.100119 a 15.839516,15.63432 0 0 0 0,0.0076 v 3.836057 h 4.1299651 v -3.836069 -0.0076 A 11.707469,11.707469 0 0 1 23.998051,4.4010978 11.707469,11.707469 0 0 1 35.708524,16.107754 h 0.0039 v 3.816973 h 4.126146 v -3.816973 -0.03055 A 15.839516,15.63432 0 0 0 23.998143,0.47342384 Z" />
+    <rect
+       style="fill:#ffeeaa;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       id="rect10"
+       width="42.36364"
+       height="28.622469"
+       x="2.8181801"
+       y="18.806067"
+       ry="3.569057" />
+    <circle
+       style="fill:#ff8080;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       id="path14"
+       cx="24"
+       cy="33.117302"
+       r="6.5800033" />
+  </g>
+</svg>
