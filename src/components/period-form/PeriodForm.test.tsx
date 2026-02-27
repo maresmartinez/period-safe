@@ -90,7 +90,7 @@ describe('PeriodForm', () => {
     fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-01' } });
     fireEvent.change(screen.getByLabelText(/flow/i), { target: { value: 'heavy' } });
     fireEvent.click(screen.getByLabelText(/cramps/i));
-    fireEvent.click(screen.getByLabelText(/mood: 3 out of 5/i));
+    fireEvent.click(screen.getByLabelText(/mood: okay/i));
     fireEvent.change(screen.getByLabelText(/notes/i), { target: { value: 'Test notes' } });
     fireEvent.click(screen.getByRole('button', { name: /log period/i }));
 
@@ -155,11 +155,11 @@ describe('PeriodForm', () => {
     expect(screen.getByLabelText(/cramps/i)).toBeChecked();
     expect(screen.getByLabelText(/fatigue/i)).toBeChecked();
     expect(screen.getByLabelText(/headache/i)).not.toBeChecked();
-    expect(screen.getByRole('button', { name: /mood: 3 out of 5/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /mood: okay/i })).toHaveAttribute(
       'aria-pressed',
       'true'
     );
-    expect(screen.getByRole('button', { name: /mood: 1 out of 5/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /mood: really bad/i })).toHaveAttribute(
       'aria-pressed',
       'false'
     );

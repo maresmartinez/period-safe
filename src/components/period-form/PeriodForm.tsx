@@ -27,6 +27,14 @@ const FLOW_OPTIONS: FlowOption[] = [
   { value: 'heavy', label: 'Heavy' },
 ];
 
+const MOOD_CONFIG: Record<1 | 2 | 3 | 4 | 5, { face: string; label: string }> = {
+  1: { face: '😣', label: 'Really Bad' },
+  2: { face: '😟', label: 'Bad' },
+  3: { face: '😐', label: 'Okay' },
+  4: { face: '🙂', label: 'Good' },
+  5: { face: '😄', label: 'Great' },
+};
+
 // Form state uses '' for unset strings vs null in Period
 interface PeriodFormFields {
   startDate: string;
@@ -274,17 +282,20 @@ export default function PeriodForm({ initialData = null, onSuccess, onCancel }: 
               key={n}
               type="button"
               onClick={() => setField('mood', fields.mood === n ? null : n)}
-              aria-label={`Mood: ${n} out of 5`}
+              aria-label={`Mood: ${MOOD_CONFIG[n].label}`}
               aria-pressed={fields.mood === n}
               className={[
-                'min-h-[48px] min-w-[48px] flex-1 rounded-lg border font-medium text-sm transition-colors',
+                'min-h-[48px] min-w-[48px] flex-1 rounded-lg border font-medium text-sm transition-colors py-2',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500',
                 fields.mood === n
                   ? 'bg-rose-500 border-rose-500 text-white'
                   : 'border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:border-rose-300',
               ].join(' ')}
             >
-              {n}
+              <span className="flex flex-col items-center gap-1">
+                <span className="text-xl leading-none" aria-hidden="true">{MOOD_CONFIG[n].face}</span>
+                <span className="text-xs leading-none">{MOOD_CONFIG[n].label}</span>
+              </span>
             </button>
           ))}
         </div>
