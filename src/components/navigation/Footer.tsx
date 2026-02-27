@@ -20,7 +20,7 @@ export default function Footer() {
                   to="/privacy"
                   className="text-neutral-500 dark:text-neutral-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded"
                 >
-                  Privacy Philosophy
+                  About
                 </Link>
               </li>
               <li>
