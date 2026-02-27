@@ -126,8 +126,6 @@ export default function PrivacyPage() {
             <ul className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               {[
                 'Transmit your data to any server — there is no backend',
-                'Collect analytics, usage statistics, or crash reports',
-                'Use tracking pixels, cookies, or advertising scripts',
                 'Require you to create an account or sign in',
                 'Sell, share, or license your data to anyone',
                 'Show you targeted ads based on your health data',
