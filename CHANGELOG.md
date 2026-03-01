@@ -18,24 +18,28 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - add write permissions to changelog workflow
 
+- make commit type patterns case-insensitive
 
-## Feat
 
-- Add history page
+## Chores
 
-- Add Week/Month/Year calendar views, and jumping to dates
+- set up automated changelog with git-cliff
 
-- Show predicted cycle and duration
+
+## Documentation
+
+- update changelog
 
 
 ## Features
 
 - replace mood number picker with emoji faces
 
+- Add history page
 
-## Chore
+- Add Week/Month/Year calendar views, and jumping to dates
 
-- set up automated changelog with git-cliff
+- Show predicted cycle and duration
 
 
 ---
