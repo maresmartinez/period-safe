@@ -42,8 +42,8 @@ group = "Testing"
 
 [[git.commit_parsers]]
 message = "^(?i)chore"
-group = "Chores"
+skip = true
 
 [[git.commit_parsers]]
-message = "^docs: update changelog"
+message = "^(?i)docs:.*(?:changelog|git-cliff|conventional commit)"
 skip = true
