@@ -16,11 +16,26 @@ body = """
 """
 footer = "\n---\n\n## Post-MVP (Backlog)\n\nThe following features are deferred beyond the current release:\n\n- Encryption at rest\n- Browser notifications\n- Mobile app (PWA or native)\n- Day-by-day flow tracking\n- Secure data sharing\n- Analytics dashboard\n- Internationalization (i18n)\n\n---\n\n## Known Limitations\n\n- All data is cleared if browser cookies/storage are wiped (by design)\n- No sync across devices (local to each browser)\n- Reminders are UI stub (no browser notifications)\n"
 
-[git.commit_parsers]
-[git.commit_parsers]
-{ message = "^feat", group = "Features" }
-{ message = "^fix", group = "Bug Fixes" }
-{ message = "^perf", group = "Performance" }
-{ message = "^refactor", group = "Refactoring" }
-{ message = "^doc", group = "Documentation" }
-{ message = "^test", group = "Testing" }
+[[git.commit_parsers]]
+message = "^feat"
+group = "Features"
+
+[[git.commit_parsers]]
+message = "^fix"
+group = "Bug Fixes"
+
+[[git.commit_parsers]]
+message = "^perf"
+group = "Performance"
+
+[[git.commit_parsers]]
+message = "^refactor"
+group = "Refactoring"
+
+[[git.commit_parsers]]
+message = "^doc"
+group = "Documentation"
+
+[[git.commit_parsers]]
+message = "^test"
+group = "Testing"
