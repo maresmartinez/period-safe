@@ -143,7 +143,33 @@ npm run dev          # Vite dev server at http://localhost:5173
 npm run build        # Production build → dist/
 npm run test         # Run all Vitest tests
 npm run test:watch   # Watch mode
+npm run lint         # Lint with ESLint
+npm run check-size   # Check gzipped bundle size (< 100KB)
 ```
+
+---
+
+## Commit Message Conventions
+
+PeriodSafe uses **conventional commits** for automatic changelog generation via git-cliff. All commits pushed to `main` must use these prefixes:
+
+| Prefix | Changelog Section | Usage |
+|--------|-------------------|-------|
+| `feat:` | Features | New user-facing features |
+| `fix:` | Bug Fixes | Bug fixes and patches |
+| `perf:` | Performance | Performance improvements |
+| `refactor:` | Refactoring | Code restructuring (no behavior change) |
+| `doc:` | Documentation | Docs, README, comments |
+| `test:` | Testing | Test suite additions/fixes |
+| `chore:` | (Hidden) | Tooling, CI, deps, config |
+
+**Format:** `<type>: <message>` (lowercase after colon, capitalize message)
+- ✅ `feat: add week view to calendar`
+- ✅ `fix: prevent mood selection bug`
+- ❌ `feature: add week view` (wrong prefix)
+- ❌ `feat: Add week view` (message not capitalized)
+
+**PR titles** should also follow conventional commit format for clarity in PR list.
 
 ---
 

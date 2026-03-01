@@ -183,6 +183,31 @@ Contributions are welcome! Here's the process:
 - Async/await + try/catch for all I/O operations
 - No PII logging — console logs must never contain user data (dates, symptoms, etc.)
 
+### Commit Messages & Changelog
+
+PeriodSafe uses **conventional commits** to auto-generate the changelog via git-cliff. Use these prefixes:
+
+| Prefix | Type | Changelog Section | Example |
+|--------|------|-------------------|----------|
+| `feat:` | ✨ Feature | Features | `feat: add dark mode toggle` |
+| `fix:` | 🐛 Bug fix | Bug Fixes | `fix: correct cycle prediction calculation` |
+| `perf:` | ⚡ Performance | Performance | `perf: optimize calendar rendering for 500+ periods` |
+| `refactor:` | ♻️ Code restructure | Refactoring | `refactor: simplify date utility functions` |
+| `doc:` | 📝 Documentation | Documentation | `doc: add accessibility audit to README` |
+| `test:` | ✅ Tests | Testing | `test: add PeriodForm validation tests` |
+| `chore:` | 🔧 Maintenance | (Hidden) | `chore: update dependencies` |
+
+**Rules:**
+- Use lowercase after the colon: ✅ `feat: add feature` ✗ `feat: Add feature`
+- Capitalize first letter of commit message after prefix
+- Keep messages concise (< 72 chars)
+- PR titles should also follow this format for clarity
+
+**Example PR titles:**
+- `feat: Add history page to view past periods`
+- `fix: Adjust prediction window edge cases`
+- `perf: Reduce calendar re-render count`
+
 ---
 
 ## CLI / Manual Smoke Test
