@@ -1,13 +1,52 @@
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usePeriodData from '../../hooks/usePeriodData.ts';
 import usePeriodPrediction from '../../hooks/usePeriodPrediction.ts';
+import useCalendarViewState from '../../hooks/useCalendarViewState.ts';
 import CalendarGrid from './CalendarGrid.tsx';
+import CalendarToolbar from './CalendarToolbar.tsx';
+import WeekView from './WeekView.tsx';
+import YearView from './YearView.tsx';
+import JumpToDateModal from './JumpToDateModal.tsx';
 import LoadingSpinner from '../LoadingSpinner.tsx';
+import { toISODateString, formatWeekRangeLabel, getWeekStart, formatYearLabel } from '../../utils/dateUtils.ts';
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
 
 export default function CalendarPage() {
   const { periods, loading, error, deletePeriod } = usePeriodData();
   const navigate = useNavigate();
   const { predictions } = usePeriodPrediction(periods);
+  const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } = useCalendarViewState();
+
+  const [jumpModalOpen, setJumpModalOpen] = useState(false);
+
+  // Derive toolbar label from view + anchorDate
+  const toolbarLabel = useMemo(() => {
+    if (view === 'year') return formatYearLabel(anchorDate.getFullYear());
+    if (view === 'week') return formatWeekRangeLabel(getWeekStart(anchorDate));
+    return `${MONTH_NAMES[anchorDate.getMonth()]} ${anchorDate.getFullYear()}`;
+  }, [view, anchorDate]);
+
+  // For CalendarGrid (month view)
+  const currentMonth = anchorDate.getMonth();
+  const currentYear = anchorDate.getFullYear();
+
+  function handleMonthClickFromYear(month: number) {
+    jumpToDate(toISODateString(new Date(currentYear, month, 1)));
+    setView('month');
+  }
+
+  function handleGoToPrevMonth() {
+    goToPrev();
+  }
+
+  function handleGoToNextMonth() {
+    goToNext();
+  }
 
   if (loading) {
     return (
@@ -26,12 +65,54 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="relative">
-      <CalendarGrid
-        periods={periods}
-        predictions={predictions}
-        onEditPeriod={(period) => navigate('/log', { state: { period } })}
-        onDeletePeriod={deletePeriod}
+    <div className="relative px-4 md:px-8 lg:px-16">
+      <CalendarToolbar
+        view={view}
+        label={toolbarLabel}
+        onSetView={setView}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onToday={goToToday}
+        onJumpToDate={() => setJumpModalOpen(true)}
+      />
+
+      {view === 'month' && (
+        <CalendarGrid
+          periods={periods}
+          predictions={predictions}
+          currentMonth={currentMonth}
+          currentYear={currentYear}
+          onGoToPrevMonth={handleGoToPrevMonth}
+          onGoToNextMonth={handleGoToNextMonth}
+          onEditPeriod={(period) => navigate('/log', { state: { period } })}
+          onDeletePeriod={deletePeriod}
+        />
+      )}
+
+      {view === 'week' && (
+        <WeekView
+          anchorDate={anchorDate}
+          periods={periods}
+          predictions={predictions}
+          onEditPeriod={(period) => navigate('/log', { state: { period } })}
+          onDeletePeriod={deletePeriod}
+        />
+      )}
+
+      {view === 'year' && (
+        <YearView
+          year={currentYear}
+          periods={periods}
+          predictions={predictions}
+          onMonthClick={handleMonthClickFromYear}
+        />
+      )}
+
+      <JumpToDateModal
+        isOpen={jumpModalOpen}
+        onClose={() => setJumpModalOpen(false)}
+        anchorDate={anchorDate}
+        onJump={jumpToDate}
       />
 
       {/* FAB — mobile only, links to Log Period */}

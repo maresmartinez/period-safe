@@ -76,6 +76,44 @@ export function toISODateString(date: Date | string): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Returns the Sunday that starts the week containing the given date.
+ */
+export function getWeekStart(date: Date): Date {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  d.setDate(d.getDate() - d.getDay());
+  return d;
+}
+
+/**
+ * Returns an array of 7 Date objects for the week (Sun–Sat) containing `date`.
+ */
+export function getWeekDays(date: Date): Date[] {
+  const sunday = getWeekStart(date);
+  const days: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    days.push(new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i));
+  }
+  return days;
+}
+
+/**
+ * Formats a week range label, e.g. "Mar 2 – Mar 8, 2025".
+ */
+export function formatWeekRangeLabel(weekStart: Date): string {
+  const weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
+  const startLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${startLabel} – ${endLabel}`;
+}
+
+/**
+ * Formats a year label, e.g. "2025".
+ */
+export function formatYearLabel(year: number): string {
+  return String(year);
+}
+
 // Normalize a Date or ISO string to a midnight local-time Date for comparisons
 function toLocalDate(dateOrString: Date | string): Date {
   if (typeof dateOrString === 'string') {
