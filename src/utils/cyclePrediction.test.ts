@@ -256,6 +256,44 @@ describe('predictNextPeriods', () => {
     expect(pred.windowEarlyStart).toBe(pred.predictedStartDate);
     expect(pred.windowLateStart).toBe(pred.predictedStartDate);
   });
+
+  it('produces low confidence and wide window for highly irregular cycles like 12, 26, 40 days', () => {
+    const periods = [
+      makePeriod('2024-01-01'),
+      makePeriod('2024-01-13'), // 12
+      makePeriod('2024-02-08'), // 26
+      makePeriod('2024-03-19'), // 40
+    ];
+    const [pred] = predictNextPeriods(periods, 1);
+    expect(pred.confidence).toBeLessThan(0.6);
+    expect(pred.windowEarlyStart < pred.predictedStartDate).toBe(true);
+    expect(pred.predictedStartDate < pred.windowLateStart).toBe(true);
+  });
+
+  it('single long outlier cycle does not significantly skew average when there is strong history', () => {
+    // 10 cycles of 28 days, then one 120-day gap
+    const periods: Period[] = [];
+    let current = '2024-01-01';
+    periods.push(makePeriod(current));
+    for (let i = 0; i < 10; i++) {
+      const start = new Date(current + 'T00:00:00');
+      start.setDate(start.getDate() + 28);
+      const iso = start.toISOString().slice(0, 10);
+      periods.push(makePeriod(iso));
+      current = iso;
+    }
+    // Add one long gap of 120 days
+    const last = new Date(current + 'T00:00:00');
+    last.setDate(last.getDate() + 120);
+    const longIso = last.toISOString().slice(0, 10);
+    periods.push(makePeriod(longIso));
+
+    const summary = analyzeCycles(periods)!;
+    expect(summary.cycleLengths).toContain(120);
+    // Effective average should stay close to the typical 28-day pattern.
+    expect(summary.averageCycleLength).toBeGreaterThanOrEqual(27);
+    expect(summary.averageCycleLength).toBeLessThanOrEqual(29);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -304,5 +342,10 @@ describe('checkCycleAnomalies', () => {
 
     const long = checkCycleAnomalies([40]);
     expect(long.reason).toMatch(/longer than 35/);
+  });
+
+  it('flags an irregular sequence like 12, 26, 40 days', () => {
+    const result = checkCycleAnomalies([12, 26, 40]);
+    expect(result.flagged).toBe(true);
   });
 });

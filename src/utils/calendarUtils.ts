@@ -1,6 +1,20 @@
-import { toISODateString } from './dateUtils.ts';
 import type { Period, Prediction } from '../types.ts';
 import type { PeriodPosition } from '../components/calendar/CalendarCell.tsx';
+
+/** Advance a YYYY-MM-DD string by one day using pure arithmetic (no Date objects). */
+function nextDay(dateStr: string): string {
+  const y = +dateStr.slice(0, 4);
+  const m = +dateStr.slice(5, 7);
+  let d = +dateStr.slice(8, 10) + 1;
+  const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  const maxD = m === 2 ? (leap ? 29 : 28) : (m <= 7 ? (m % 2 === 0 ? 30 : 31) : (m % 2 === 0 ? 31 : 30));
+  if (d > maxD) {
+    d = 1;
+    if (m + 1 > 12) return `${y + 1}-01-01`;
+    return `${y}-${m + 1 < 10 ? '0' + (m + 1) : m + 1}-01`;
+  }
+  return `${y}-${m < 10 ? '0' + m : m}-${d < 10 ? '0' + d : d}`;
+}
 
 export interface PeriodDateMapEntry {
   period: Period;
@@ -30,8 +44,7 @@ export function buildPeriodDateMap(periods: Period[]): Map<string, PeriodDateMap
       map.set(currentStr, { period, position });
 
       // Advance one day
-      const [y, m, d] = currentStr.split('-').map(Number);
-      currentStr = toISODateString(new Date(y, m - 1, d + 1));
+      currentStr = nextDay(currentStr);
     }
   }
   return map;
@@ -51,8 +64,7 @@ export function buildPredictedDateSet(predictions: Prediction[]): Set<string> {
     let currentStr = startStr;
     while (currentStr <= endStr) {
       set.add(currentStr);
-      const [y, m, d] = currentStr.split('-').map(Number);
-      currentStr = toISODateString(new Date(y, m - 1, d + 1));
+      currentStr = nextDay(currentStr);
     }
   }
   return set;

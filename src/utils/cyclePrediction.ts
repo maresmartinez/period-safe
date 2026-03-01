@@ -52,15 +52,30 @@ export function analyzeCycles(periods: Array<{ startDate: string }>): CycleSumma
   }
 
   const n = cycleLengths.length;
-  const mean = cycleLengths.reduce((acc, l) => acc + l, 0) / n;
-  // Population standard deviation
-  const stdDev = Math.sqrt(cycleLengths.reduce((acc, l) => acc + (l - mean) ** 2, 0) / n);
+  // Use a trimmed set of cycles for statistics to reduce the impact of single extreme outliers.
+  let effectiveCycleLengths = cycleLengths;
+  if (n >= 4) {
+    const sortedCycles = [...cycleLengths].sort((a, b) => a - b);
+    const trimmed = sortedCycles.slice(1, sortedCycles.length - 1);
+    if (trimmed.length >= 2) {
+      effectiveCycleLengths = trimmed;
+    }
+  }
+
+  const effectiveN = effectiveCycleLengths.length;
+  const mean = effectiveCycleLengths.reduce((acc, l) => acc + l, 0) / effectiveN;
+  // Population standard deviation on the effective set
+  const stdDev = Math.sqrt(
+    effectiveCycleLengths.reduce((acc, l) => acc + (l - mean) ** 2, 0) / effectiveN
+  );
 
   return {
     averageCycleLength: Math.round(mean * 100) / 100,
     variance: Math.round(stdDev * 100) / 100,
     cycleLengths,
     basedOnNCycles: n,
+    effectiveCycleLengths,
+    effectiveNCycles: effectiveN,
   };
 }
 

@@ -40,7 +40,19 @@ export interface CycleSummary {
   averageCycleLength: number;
   variance: number; // population standard deviation
   cycleLengths: number[];
+  /**
+   * Total number of cycles derived from the raw data (cycleLengths.length).
+   */
   basedOnNCycles: number;
+  /**
+   * Subset of cycle lengths actually used to compute averageCycleLength/variance.
+   * This may exclude obvious outliers while preserving them in cycleLengths for anomaly checks.
+   */
+  effectiveCycleLengths: number[];
+  /**
+   * Number of cycles used for the core statistics (effectiveCycleLengths.length).
+   */
+  effectiveNCycles: number;
 }
 
 export interface AnomalyResult {
