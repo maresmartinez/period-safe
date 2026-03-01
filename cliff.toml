@@ -33,17 +33,17 @@ message = "^(?i)refactor"
 group = "Refactoring"
 
 [[git.commit_parsers]]
-message = "^(?i)doc"
-group = "Documentation"
-
-[[git.commit_parsers]]
-message = "^(?i)test"
-group = "Testing"
-
-[[git.commit_parsers]]
 message = "^(?i)chore"
 skip = true
 
 [[git.commit_parsers]]
 message = "^(?i)docs:.*(?:changelog|git-cliff|conventional commit)"
 skip = true
+
+[[git.commit_parsers]]
+message = "^(?i)doc"
+group = "Documentation"
+
+[[git.commit_parsers]]
+message = "^(?i)test"
+group = "Testing"
