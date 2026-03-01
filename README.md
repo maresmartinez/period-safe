@@ -2,7 +2,7 @@
 
 A private, local-first period tracking app. Your data never leaves your device — no accounts, no servers, no cloud sync.
 
-**Live app:** [https://periodsafe.vercel.app](https://periodsafe.vercel.app)
+**Live app:** [https://period-safe.vercel.app](https://period-safe.vercel.app)
 
 ---
 
@@ -195,7 +195,7 @@ npm run dev          # Start the dev server
 ```
 
 Or in production:
-1. Visit [https://periodsafe.vercel.app](https://periodsafe.vercel.app)
+1. Visit [https://period-safe.vercel.app](https://period-safe.vercel.app)
 2. Follow [docs/smoke-test.md](docs/smoke-test.md)
 
 ---
