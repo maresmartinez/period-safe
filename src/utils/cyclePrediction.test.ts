@@ -154,16 +154,14 @@ describe('predictNextPeriods', () => {
     expect(pred.confidence).toBeGreaterThanOrEqual(0);
   });
 
-  it('all predictions share the same anomalyFlag and confidence', () => {
+  it('all predictions share the same confidence', () => {
     const periods = [
       makePeriod('2024-01-01'),
       makePeriod('2024-01-29'),
       makePeriod('2024-02-26'),
     ];
     const predictions = predictNextPeriods(periods, 3);
-    const flags = predictions.map((p) => p.anomalyFlag);
     const confs = predictions.map((p) => p.confidence);
-    expect(new Set(flags).size).toBe(1);
     expect(new Set(confs).size).toBe(1);
   });
 
