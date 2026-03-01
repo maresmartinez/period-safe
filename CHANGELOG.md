@@ -1,41 +1,54 @@
 # Changelog
 
-All notable changes to PeriodSafe will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` is automatically deployed to production. Changes are listed by deployment date, with commit SHAs for reference.
 
 ---
 
-## [1.0.0] — 2026-02-26
+## 2026-03-01
 
-### Added (MVP Release)
+- **feat:** Show predicted cycle and duration in calendar (`3d72ef6`)
+- **fix:** Fix production site URL in README (`654b82b`)
+- **feat:** Add Week/Month/Year calendar views and date jumping (`0ef420b`)
+- **fix:** Adjust prediction window lengths (`8177da3`)
 
-- **Period Logging** — Log periods with start/end dates, flow intensity, symptoms, mood, and notes
-- **Month Calendar** — Interactive calendar view with period visualization and navigation
-- **Cycle Prediction** — Auto-predicted period windows based on past cycles with confidence scoring
-- **Settings** — Customizable cycle length and light/dark theme preference
-- **Import/Export** — Full-featured data backup and restore with overwrite/merge strategies
-- **Privacy Banner** — First-visit privacy disclosure explaining local-only data storage
-- **Accessibility** — WCAG 2.1 Level AA compliant with full keyboard navigation
-- **Performance** — Calendar renders 500+ periods in < 200ms; bundle < 100KB gzipped
-- **Error Boundaries** — Graceful error handling with user-friendly fallback UI
-- **Responsive Design** — Mobile-first design supporting 320px–2560px+ viewports
-- **Local Storage** — IndexedDB + localStorage for zero-server, zero-account experience
+---
 
-### Tech Stack
+## 2026-02-27
 
-- React 19 + Vite
-- Tailwind CSS 4
-- React Router v6
-- Vitest + React Testing Library
-- Vercel deployment
+- **feat:** Add history page to view past periods (`6997906`)
+- **fix:** Rename footer link for clarity (`5657e6d`)
+- **feat:** Replace mood number picker with emoji faces (`062c908`)
+- **feat:** Add privacy philosophy page and footer (`c68f47f`)
+- **feat:** Simplify footer with GitHub link (`fc3b01d`)
+- **fix:** Update mood labels (Horrible instead of Really Bad) (`5546f30`)
+- **fix:** Tidy up footer styling (`10e26cb`)
+- **fix:** Remove promise about analytics; clarify future encryption plans (`d014800`)
+- **fix:** Add custom favicon (`e2d26d3`)
+- **fix:** Fix import statements (`ce9cf49`)
+- **feat:** TypeScript migration — convert all JS to TS (`fbcef45`)
+
+---
+
+## 2026-02-26
+
+- **feat:** Calendar month view with period visualization
+- **feat:** Full period logging form (date, flow, symptoms, mood, notes)
+- **feat:** Cycle prediction with confidence scoring
+- **feat:** Settings page (cycle length, dark/light theme)
+- **feat:** Import/export with overwrite/merge strategies
+- **feat:** Error boundaries and graceful error handling
+- **feat:** Navigation layout (header, bottom nav, routing)
+- **feat:** CI/CD pipeline (GitHub Actions, Vercel integration)
+- **feat:** Polish & performance (bundle size checks, perf tests, privacy banner)
+- **feat:** UI design system (Button, Modal, Toast, Card components)
+- **feat:** IndexedDB storage for periods and settings
+- **feat:** Add edit period capability to calendar view
 
 ---
 
 ## Post-MVP (Backlog)
 
-The following features are deferred beyond the MVP:
+The following features are deferred beyond the current release:
 
 - Encryption at rest (TweetNaCl.js or libsodium.js candidate)
 - Browser notifications for upcoming periods
@@ -51,7 +64,18 @@ The following features are deferred beyond the MVP:
 
 - All data is cleared if browser cookies/storage are wiped (by design)
 - No sync across devices (local to each browser)
-- Reminders are UI stub for MVP (no browser notifications)
+- Reminders are UI stub (no browser notifications)
+
+---
+
+## Tech Stack
+
+- React 19 + Vite
+- Tailwind CSS 4
+- React Router v6
+- TypeScript
+- Vitest + React Testing Library
+- Vercel deployment with GitHub Actions CI
 
 ---
 
