@@ -30,6 +30,10 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - update changelog
 
+- add conventional commit guidelines for git-cliff changelog
+
+- update changelog
+
 
 ## Features
 
