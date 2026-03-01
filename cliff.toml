@@ -1,0 +1,26 @@
+# Git configuration
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+
+[changelog]
+header = "# Changelog\n\nPeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` is automatically deployed to production.\n\n"
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+## {{ group | title }}
+{% for commit in commits %}
+- {% if commit.breaking %}**BREAKING:** {% endif %}{{ commit.message }}{% if commit.hash %} ([`{{ commit.hash | truncate(length=7, end="") }}`](https://github.com/maresmartinez/period-safe/commit/{{ commit.hash }})){% endif %}
+{% endfor %}
+{% endfor %}
+"""
+footer = "\n---\n\n## Post-MVP (Backlog)\n\nThe following features are deferred beyond the current release:\n\n- Encryption at rest\n- Browser notifications\n- Mobile app (PWA or native)\n- Day-by-day flow tracking\n- Secure data sharing\n- Analytics dashboard\n- Internationalization (i18n)\n\n---\n\n## Known Limitations\n\n- All data is cleared if browser cookies/storage are wiped (by design)\n- No sync across devices (local to each browser)\n- Reminders are UI stub (no browser notifications)\n"
+
+[git.commit_parsers]
+[git.commit_parsers]
+{ message = "^feat", group = "Features" }
+{ message = "^fix", group = "Bug Fixes" }
+{ message = "^perf", group = "Performance" }
+{ message = "^refactor", group = "Refactoring" }
+{ message = "^doc", group = "Documentation" }
+{ message = "^test", group = "Testing" }
