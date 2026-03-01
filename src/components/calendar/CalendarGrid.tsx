@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import useCalendar from './useCalendar.ts';
 import CalendarCell from './CalendarCell.tsx';
 import PeriodDetailModal from './PeriodDetailModal.tsx';
 import { getCalendarDays, toISODateString } from '../../utils/dateUtils.ts';
+import { buildPeriodDateMap, buildPredictedDateSet } from '../../utils/calendarUtils.ts';
 import type { Period, Prediction } from '../../types.ts';
-import type { PeriodPosition } from './CalendarCell.tsx';
 
 const DAY_HEADERS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -13,70 +12,16 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-interface PeriodDateMapEntry {
-  period: Period;
-  position: PeriodPosition;
-}
-
-/**
- * Builds a map from ISO date string → { period, position } for all logged periods.
- * position: 'start' | 'mid' | 'end' | 'single'
- */
-function buildPeriodDateMap(periods: Period[]): Map<string, PeriodDateMapEntry> {
-  const map = new Map<string, PeriodDateMapEntry>();
-  for (const period of periods) {
-    const startStr = period.startDate;
-    const endStr = period.endDate ?? period.startDate;
-    let currentStr = startStr;
-
-    while (currentStr <= endStr) {
-      const isStart = currentStr === startStr;
-      const isEnd = currentStr === endStr;
-      let position: PeriodPosition;
-      if (isStart && isEnd) position = 'single';
-      else if (isStart) position = 'start';
-      else if (isEnd) position = 'end';
-      else position = 'mid';
-
-      map.set(currentStr, { period, position });
-
-      // Advance one day
-      const [y, m, d] = currentStr.split('-').map(Number);
-      currentStr = toISODateString(new Date(y, m - 1, d + 1));
-    }
-  }
-  return map;
-}
-
-/**
- * Builds a Set of ISO date strings for all predicted period days.
- * Marks every day in the predicted period range (predictedStartDate → predictedEndDate).
- */
-function buildPredictedDateSet(predictions: Prediction[]): Set<string> {
-  const set = new Set<string>();
-  for (const pred of predictions) {
-    const startStr = pred.predictedStartDate;
-    const endStr = pred.predictedEndDate ?? pred.predictedStartDate;
-    if (!startStr) continue;
-
-    let currentStr = startStr;
-    while (currentStr <= endStr) {
-      set.add(currentStr);
-      const [y, m, d] = currentStr.split('-').map(Number);
-      currentStr = toISODateString(new Date(y, m - 1, d + 1));
-    }
-  }
-  return set;
-}
-
 interface CalendarGridProps {
   periods?: Period[];
   predictions?: Prediction[];
   onPeriodClick?: (period: Period) => void;
   onEditPeriod?: (period: Period) => void;
   onDeletePeriod?: (id: string) => void;
-  initialMonth?: number;
-  initialYear?: number;
+  currentMonth: number;
+  currentYear: number;
+  onGoToPrevMonth: () => void;
+  onGoToNextMonth: () => void;
 }
 
 export default function CalendarGrid({
@@ -85,14 +30,11 @@ export default function CalendarGrid({
   onPeriodClick,
   onEditPeriod,
   onDeletePeriod,
-  initialMonth,
-  initialYear,
+  currentMonth,
+  currentYear,
+  onGoToPrevMonth,
+  onGoToNextMonth,
 }: CalendarGridProps) {
-  const { currentMonth, currentYear, goToPrevMonth, goToNextMonth } = useCalendar(
-    initialMonth,
-    initialYear
-  );
-
   const today = useMemo(() => toISODateString(new Date()), []);
 
   const [focusedDate, setFocusedDate] = useState(() => new Date());
@@ -131,14 +73,6 @@ export default function CalendarGrid({
       cell.focus();
     }
   }, [focusedDate]);
-
-  const handleNavPrevMonth = useCallback(() => {
-    goToPrevMonth();
-  }, [goToPrevMonth]);
-
-  const handleNavNextMonth = useCallback(() => {
-    goToNextMonth();
-  }, [goToNextMonth]);
 
   const handleCellClick = useCallback(
     (date: Date) => {
@@ -224,15 +158,15 @@ export default function CalendarGrid({
       if (shouldNavigateMonth) {
         keyboardNavRef.current = true; // Prevent the useEffect from resetting focusedDate
         if (newYear < currentYear || (newYear === currentYear && newMonth < currentMonth)) {
-          goToPrevMonth();
+          onGoToPrevMonth();
         } else {
-          goToNextMonth();
+          onGoToNextMonth();
         }
       }
 
       setFocusedDate(newDate);
     },
-    [focusedDate, currentMonth, currentYear, periodDateMap, onPeriodClick, goToPrevMonth, goToNextMonth]
+    [focusedDate, currentMonth, currentYear, periodDateMap, onPeriodClick, onGoToPrevMonth, onGoToNextMonth]
   );
 
   // Group days into weeks (rows of 7)
@@ -248,37 +182,6 @@ export default function CalendarGrid({
 
   return (
     <div className="w-full">
-      {/* Month navigation header */}
-      <div className="flex items-center justify-between mb-4 px-1">
-        <button
-          onClick={handleNavPrevMonth}
-          aria-label="Previous month"
-          className="min-h-[48px] min-w-[48px] flex items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <h2
-          aria-live="polite"
-          aria-atomic="true"
-          className="text-base font-semibold text-neutral-900 dark:text-neutral-100"
-        >
-          {monthYearLabel}
-        </h2>
-
-        <button
-          onClick={handleNavNextMonth}
-          aria-label="Next month"
-          className="min-h-[48px] min-w-[48px] flex items-center justify-center rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-
       {/* Calendar grid */}
       <table
         ref={gridRef}

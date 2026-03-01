@@ -44,7 +44,16 @@ describe('CalendarGrid Performance', () => {
     const periods = generateTestPeriods(500);
 
     const start = performance.now();
-    render(<CalendarGrid periods={periods} predictions={[]} />);
+    render(
+      <CalendarGrid
+        periods={periods}
+        predictions={[]}
+        currentMonth={0}
+        currentYear={2024}
+        onGoToPrevMonth={() => {}}
+        onGoToNextMonth={() => {}}
+      />
+    );
     const elapsed = performance.now() - start;
 
     expect(elapsed).toBeLessThan(200);
@@ -55,7 +64,16 @@ describe('CalendarGrid Performance', () => {
     const periods = generateTestPeriods(100);
 
     const start = performance.now();
-    render(<CalendarGrid periods={periods} predictions={[]} />);
+    render(
+      <CalendarGrid
+        periods={periods}
+        predictions={[]}
+        currentMonth={0}
+        currentYear={2024}
+        onGoToPrevMonth={() => {}}
+        onGoToNextMonth={() => {}}
+      />
+    );
     const elapsed = performance.now() - start;
 
     expect(elapsed).toBeLessThan(50);

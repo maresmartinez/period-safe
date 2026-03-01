@@ -1,8 +1,55 @@
+import { useState } from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CalendarGrid from './CalendarGrid.tsx';
 import { ToastProvider } from '../../stores/ToastContext.tsx';
 import type { Period, Prediction } from '../../types.ts';
+
+// Controlled wrapper so tests can pass initialMonth/initialYear
+// without CalendarGrid owning its own navigation state.
+interface ControlledCalendarGridProps {
+  periods?: Period[];
+  predictions?: Prediction[];
+  initialMonth?: number;
+  initialYear?: number;
+  onPeriodClick?: (period: Period) => void;
+}
+
+function ControlledCalendarGrid({
+  initialMonth = 0,
+  initialYear = 2024,
+  periods = [],
+  predictions = [],
+  onPeriodClick,
+}: ControlledCalendarGridProps) {
+  const [month, setMonth] = useState(initialMonth);
+  const [year, setYear] = useState(initialYear);
+
+  function goToPrev() {
+    setMonth((m) => {
+      if (m === 0) { setYear((y) => y - 1); return 11; }
+      return m - 1;
+    });
+  }
+  function goToNext() {
+    setMonth((m) => {
+      if (m === 11) { setYear((y) => y + 1); return 0; }
+      return m + 1;
+    });
+  }
+
+  return (
+    <CalendarGrid
+      periods={periods}
+      predictions={predictions}
+      onPeriodClick={onPeriodClick}
+      currentMonth={month}
+      currentYear={year}
+      onGoToPrevMonth={goToPrev}
+      onGoToNextMonth={goToNext}
+    />
+  );
+}
 
 interface RenderCalendarProps {
   periods?: Period[];
@@ -24,7 +71,7 @@ function renderCalendar(props: RenderCalendarProps = {}) {
 
   render(
     <ToastProvider>
-      <CalendarGrid {...merged} />
+      <ControlledCalendarGrid {...merged} />
     </ToastProvider>
   );
 
@@ -174,41 +221,6 @@ describe('CalendarGrid', () => {
     fireEvent.click(cell);
 
     expect(onPeriodClick).not.toHaveBeenCalled();
-  });
-
-  // -----------------------------------------------------------------------
-  // 6. Month nav: "Next" increments month; wraps year at December
-  // -----------------------------------------------------------------------
-  it('increments the month when "Next month" button is clicked', () => {
-    renderCalendar({ initialMonth: 5, initialYear: 2024 }); // June 2024
-
-    fireEvent.click(screen.getByRole('button', { name: /next month/i }));
-
-    expect(screen.getByRole('grid', { name: /july 2024/i })).toBeInTheDocument();
-  });
-
-  it('wraps to January of the next year when next is clicked in December', () => {
-    renderCalendar({ initialMonth: 11, initialYear: 2024 }); // December 2024
-
-    fireEvent.click(screen.getByRole('button', { name: /next month/i }));
-
-    expect(screen.getByRole('grid', { name: /january 2025/i })).toBeInTheDocument();
-  });
-
-  it('decrements the month when "Previous month" button is clicked', () => {
-    renderCalendar({ initialMonth: 2, initialYear: 2024 }); // March 2024
-
-    fireEvent.click(screen.getByRole('button', { name: /previous month/i }));
-
-    expect(screen.getByRole('grid', { name: /february 2024/i })).toBeInTheDocument();
-  });
-
-  it('wraps to December of the previous year when prev is clicked in January', () => {
-    renderCalendar({ initialMonth: 0, initialYear: 2024 }); // January 2024
-
-    fireEvent.click(screen.getByRole('button', { name: /previous month/i }));
-
-    expect(screen.getByRole('grid', { name: /december 2023/i })).toBeInTheDocument();
   });
 
   // -----------------------------------------------------------------------
