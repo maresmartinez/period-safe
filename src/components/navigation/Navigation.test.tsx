@@ -50,12 +50,12 @@ describe('NotFoundPage', () => {
 // BottomNav
 // ---------------------------------------------------------------------------
 describe('BottomNav', () => {
-  it('renders four navigation items', () => {
+  it('renders five navigation items', () => {
     renderWithRouter(<BottomNav />);
     const nav = screen.getByRole('navigation', { name: /main navigation/i });
     // Each NavLink is a link inside the nav
     const links = nav.querySelectorAll('a');
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(5);
   });
 
   it('highlights Calendar as active on root route', () => {
@@ -81,11 +81,11 @@ describe('BottomNav', () => {
 // TabNav
 // ---------------------------------------------------------------------------
 describe('TabNav', () => {
-  it('renders four navigation links', () => {
+  it('renders five navigation links', () => {
     renderWithRouter(<TabNav />);
     const nav = screen.getByRole('navigation', { name: /main navigation/i });
     const links = nav.querySelectorAll('a');
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(5);
   });
 
   it('highlights Calendar tab as active on root route', () => {

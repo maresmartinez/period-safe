@@ -14,6 +14,7 @@ const CalendarPage = lazy(() => import('./components/calendar/CalendarPage.tsx')
 const PeriodFormPage = lazy(() => import('./components/period-form/PeriodFormPage.tsx'));
 const SettingsPage = lazy(() => import('./components/settings/SettingsPage.tsx'));
 const ImportExportPage = lazy(() => import('./components/import-export/ImportExportPage.tsx'));
+const HistoryPage = lazy(() => import('./components/history/HistoryPage.tsx'));
 const PrivacyPage = lazy(() => import('./components/privacy/PrivacyPage.tsx'));
 const NotFoundPage = lazy(() => import('./components/navigation/NotFoundPage.tsx'));
 
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/" element={<CalendarPage />} />
                 <Route path="/log" element={<PeriodFormPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/history" element={<HistoryPage />} />
                 <Route path="/export" element={<ImportExportPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="*" element={<NotFoundPage />} />
