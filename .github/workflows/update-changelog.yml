@@ -13,12 +13,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install git-cliff
-        run: |
-          curl -LsSf https://github.com/orhun/git-cliff/releases/download/v0.13.1/git-cliff-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C /usr/local/bin
-
       - name: Generate changelog
-        run: git-cliff --output CHANGELOG.md
+        uses: orhun/git-cliff-action@main
+        with:
+          config: cliff.toml
+          args: --output CHANGELOG.md
 
       - name: Commit and push
         run: |
