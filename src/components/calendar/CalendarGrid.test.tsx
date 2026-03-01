@@ -229,6 +229,7 @@ describe('CalendarGrid', () => {
       {
         id: 'pr1',
         predictedStartDate: '2024-01-25',
+        predictedEndDate: '2024-01-25',
         windowEarlyStart: '2024-01-25',
         windowLateStart: '2024-01-25',
         confidence: 0.8,
