@@ -19,7 +19,7 @@ const MONTH_NAMES = [
 export default function CalendarPage() {
   const { periods, loading, error, deletePeriod } = usePeriodData();
   const navigate = useNavigate();
-  const { predictions } = usePeriodPrediction(periods);
+  const { predictions, cycleSummary } = usePeriodPrediction(periods);
   const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } = useCalendarViewState();
 
   const [jumpModalOpen, setJumpModalOpen] = useState(false);
@@ -30,6 +30,20 @@ export default function CalendarPage() {
     if (view === 'week') return formatWeekRangeLabel(getWeekStart(anchorDate));
     return `${MONTH_NAMES[anchorDate.getMonth()]} ${anchorDate.getFullYear()}`;
   }, [view, anchorDate]);
+
+  // Prediction summary values
+  const predictedCycleLength = cycleSummary
+    ? Math.round(cycleSummary.averageCycleLength)
+    : null;
+
+  const predictedDuration = predictions.length > 0
+    ? (() => {
+        const p = predictions[0];
+        const a = new Date(p.predictedStartDate);
+        const b = new Date(p.predictedEndDate);
+        return Math.round((b.getTime() - a.getTime()) / 86400000) + 1;
+      })()
+    : null;
 
   // For CalendarGrid (month view)
   const currentMonth = anchorDate.getMonth();
@@ -76,6 +90,28 @@ export default function CalendarPage() {
         onJumpToDate={() => setJumpModalOpen(true)}
       />
 
+      {/* Prediction summary cards */}
+      <div className="grid grid-cols-2 gap-3 px-4 pb-3">
+        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">
+            Predicted Cycle
+          </p>
+          <p className="text-2xl font-bold text-rose-500">
+            {predictedCycleLength != null ? `${predictedCycleLength}` : '—'}
+          </p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">days</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">
+            Predicted Duration
+          </p>
+          <p className="text-2xl font-bold text-rose-500">
+            {predictedDuration != null ? `${predictedDuration}` : '—'}
+          </p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">days</p>
+        </div>
+      </div>
+
       {view === 'month' && (
         <CalendarGrid
           periods={periods}
@@ -107,6 +143,21 @@ export default function CalendarPage() {
           onMonthClick={handleMonthClickFromYear}
         />
       )}
+
+      {/* Calendar legend */}
+      <div className="flex flex-wrap items-center gap-4 px-4 pt-3 pb-4 text-xs text-neutral-600 dark:text-neutral-400">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-3 w-3 rounded-full bg-rose-500" aria-hidden="true" />
+          Logged period
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span
+            className="inline-block h-3 w-3 rounded-full bg-rose-100 border border-dashed border-rose-400"
+            aria-hidden="true"
+          />
+          Predicted period
+        </span>
+      </div>
 
       <JumpToDateModal
         isOpen={jumpModalOpen}
