@@ -52,15 +52,27 @@ export function analyzeCycles(periods: Array<{ startDate: string }>): CycleSumma
   }
 
   const n = cycleLengths.length;
-  const mean = cycleLengths.reduce((acc, l) => acc + l, 0) / n;
-  // Population standard deviation
-  const stdDev = Math.sqrt(cycleLengths.reduce((acc, l) => acc + (l - mean) ** 2, 0) / n);
+  // Use a trimmed set of cycles for statistics to reduce the impact of single extreme outliers.
+  let effectiveCycleLengths = cycleLengths;
+  if (n >= 4) {
+    const sortedCycles = [...cycleLengths].sort((a, b) => a - b);
+    const trimmed = sortedCycles.slice(1, sortedCycles.length - 1);
+    if (trimmed.length >= 2) {
+      effectiveCycleLengths = trimmed;
+    }
+  }
+
+  const effectiveN = effectiveCycleLengths.length;
+  const mean = effectiveCycleLengths.reduce((acc, l) => acc + l, 0) / effectiveN;
+  // Population standard deviation on the effective set
+  const stdDev = Math.sqrt(
+    effectiveCycleLengths.reduce((acc, l) => acc + (l - mean) ** 2, 0) / effectiveN
+  );
 
   return {
     averageCycleLength: Math.round(mean * 100) / 100,
     variance: Math.round(stdDev * 100) / 100,
     cycleLengths,
-    basedOnNCycles: n,
   };
 }
 
@@ -119,8 +131,7 @@ export function predictNextPeriods(
   const sorted = [...periods].sort((a, b) => a.startDate.localeCompare(b.startDate));
   const lastPeriod = sorted[sorted.length - 1];
 
-  const { averageCycleLength, variance, basedOnNCycles, cycleLengths } = summary;
-  const { flagged: anomalyFlag } = checkCycleAnomalies(cycleLengths);
+  const { averageCycleLength, variance } = summary;
   const confidence = Math.round(Math.max(0, 1 - variance / averageCycleLength) * 100) / 100;
   const periodLength = computeAvgPeriodLength(sorted);
 
@@ -131,18 +142,12 @@ export function predictNextPeriods(
     const daysAhead = Math.round(averageCycleLength) * (i + 1);
     const predictedStartDate = addDaysToISO(lastPeriod.startDate, daysAhead);
     const predictedEndDate = addDaysToISO(predictedStartDate, periodLength - 1);
-    const windowEarlyStart = addDaysToISO(predictedStartDate, -Math.floor(variance));
-    const windowLateStart = addDaysToISO(predictedStartDate, Math.ceil(variance));
 
     predictions.push({
       id: `pred-${ts}-${i}`,
       predictedStartDate,
       predictedEndDate,
-      windowEarlyStart,
-      windowLateStart,
       confidence,
-      basedOnLastNCycles: basedOnNCycles,
-      anomalyFlag,
       schemaVersion: 1,
     });
   }

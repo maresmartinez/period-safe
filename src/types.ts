@@ -28,11 +28,7 @@ export interface Prediction {
   id: string;
   predictedStartDate: string;
   predictedEndDate: string;
-  windowEarlyStart: string;
-  windowLateStart: string;
   confidence: number; // 0–1
-  basedOnLastNCycles: number;
-  anomalyFlag: boolean;
   schemaVersion: 1;
 }
 
@@ -40,7 +36,6 @@ export interface CycleSummary {
   averageCycleLength: number;
   variance: number; // population standard deviation
   cycleLengths: number[];
-  basedOnNCycles: number;
 }
 
 export interface AnomalyResult {

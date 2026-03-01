@@ -8,6 +8,8 @@ import CalendarToolbar from './CalendarToolbar.tsx';
 import WeekView from './WeekView.tsx';
 import YearView from './YearView.tsx';
 import JumpToDateModal from './JumpToDateModal.tsx';
+import PredictionInfoModal from './PredictionInfoModal.tsx';
+import PredictionUncertaintyModal from './PredictionUncertaintyModal.tsx';
 import LoadingSpinner from '../LoadingSpinner.tsx';
 import { toISODateString, formatWeekRangeLabel, getWeekStart, formatYearLabel } from '../../utils/dateUtils.ts';
 
@@ -19,10 +21,18 @@ const MONTH_NAMES = [
 export default function CalendarPage() {
   const { periods, loading, error, deletePeriod } = usePeriodData();
   const navigate = useNavigate();
-  const { predictions, cycleSummary } = usePeriodPrediction(periods);
-  const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } = useCalendarViewState();
+  const {
+    predictions,
+    cycleSummary,
+    isPredictionUncertain,
+    predictionStability,
+  } = usePeriodPrediction(periods);
+  const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } =
+    useCalendarViewState();
 
   const [jumpModalOpen, setJumpModalOpen] = useState(false);
+  const [predictionInfoOpen, setPredictionInfoOpen] = useState(false);
+  const [predictionUncertaintyOpen, setPredictionUncertaintyOpen] = useState(false);
 
   // Derive toolbar label from view + anchorDate
   const toolbarLabel = useMemo(() => {
@@ -90,25 +100,82 @@ export default function CalendarPage() {
         onJumpToDate={() => setJumpModalOpen(true)}
       />
 
-      {/* Prediction summary cards */}
-      <div className="grid grid-cols-2 gap-3 px-4 pb-3">
+      {/* Prediction summary card */}
+      <div className="px-4 pb-3">
         <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">
-            Predicted Cycle
-          </p>
-          <p className="text-2xl font-bold text-rose-500">
-            {predictedCycleLength != null ? `${predictedCycleLength}` : '—'}
-          </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">days</p>
-        </div>
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">
-            Predicted Duration
-          </p>
-          <p className="text-2xl font-bold text-rose-500">
-            {predictedDuration != null ? `${predictedDuration}` : '—'}
-          </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">days</p>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Predicted cycle & duration
+              </p>
+            </div>
+            {isPredictionUncertain && (
+              <button
+                type="button"
+                onClick={() => setPredictionInfoOpen(true)}
+                className="min-h-[32px] min-w-[32px] flex items-center justify-center rounded-full text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                aria-label="Learn more about how these predictions are calculated"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-10.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM10 9a.75.75 0 0 0-.75.75v3.5a.75.75 0 0 0 1.5 0v-3.5A.75.75 0 0 0 10 9Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5">
+              <p className="text-2xl font-bold text-rose-500">
+                {predictedCycleLength != null ? `${predictedCycleLength} days` : '—'}
+              </p>
+              {predictionStability === 'low' && predictedCycleLength != null && (
+                <button
+  type="button"
+  onClick={() => setPredictionUncertaintyOpen(true)}
+  className="inline-flex h-5 w-5 items-center justify-center text-amber-600 dark:border-amber-500/60 dark:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+  aria-label="Why these dates are more approximate"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="w-3.5 h-3.5"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M8.485 3.5a1.5 1.5 0 0 1 2.597 0l6.42 11.137A1.5 1.5 0 0 1 16.17 17.5H3.83a1.5 1.5 0 0 1-1.332-2.263L8.485 3.5ZM10 8a.75.75 0 0 0-.75.75v2.5a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 10 8Zm0 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+      clipRule="evenodd"
+    />
+  </svg>
+</button>
+              )}
+            </div>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              {predictedDuration != null
+                ? `Typical length: around ${predictedDuration} day${
+                    predictedDuration === 1 ? '' : 's'
+                  }.`
+                : 'We’ll estimate this once there is a bit more history.'}
+            </p>
+            {(predictionStability === 'high' || predictionStability === 'medium') && (
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 italic">
+                {predictionStability === 'high' &&
+                  'These predictions look fairly consistent.'}
+                {predictionStability === 'medium' &&
+                  'These predictions should help, but timing may shift between cycles.'}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -164,6 +231,16 @@ export default function CalendarPage() {
         onClose={() => setJumpModalOpen(false)}
         anchorDate={anchorDate}
         onJump={jumpToDate}
+      />
+
+      <PredictionInfoModal
+        isOpen={predictionInfoOpen}
+        onClose={() => setPredictionInfoOpen(false)}
+      />
+
+      <PredictionUncertaintyModal
+        isOpen={predictionUncertaintyOpen}
+        onClose={() => setPredictionUncertaintyOpen(false)}
       />
 
       {/* FAB — mobile only, links to Log Period */}
