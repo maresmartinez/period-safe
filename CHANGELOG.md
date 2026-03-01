@@ -31,6 +31,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - Show predicted cycle and duration
 
+- Manage uncertainty in predictions and show uncertainty warnings for irregular data
+
 
 ---
 
