@@ -73,9 +73,6 @@ export function analyzeCycles(periods: Array<{ startDate: string }>): CycleSumma
     averageCycleLength: Math.round(mean * 100) / 100,
     variance: Math.round(stdDev * 100) / 100,
     cycleLengths,
-    basedOnNCycles: n,
-    effectiveCycleLengths,
-    effectiveNCycles: effectiveN,
   };
 }
 
@@ -134,8 +131,7 @@ export function predictNextPeriods(
   const sorted = [...periods].sort((a, b) => a.startDate.localeCompare(b.startDate));
   const lastPeriod = sorted[sorted.length - 1];
 
-  const { averageCycleLength, variance, basedOnNCycles, cycleLengths } = summary;
-  const { flagged: anomalyFlag } = checkCycleAnomalies(cycleLengths);
+  const { averageCycleLength, variance } = summary;
   const confidence = Math.round(Math.max(0, 1 - variance / averageCycleLength) * 100) / 100;
   const periodLength = computeAvgPeriodLength(sorted);
 
@@ -146,18 +142,12 @@ export function predictNextPeriods(
     const daysAhead = Math.round(averageCycleLength) * (i + 1);
     const predictedStartDate = addDaysToISO(lastPeriod.startDate, daysAhead);
     const predictedEndDate = addDaysToISO(predictedStartDate, periodLength - 1);
-    const windowEarlyStart = addDaysToISO(predictedStartDate, -Math.floor(variance));
-    const windowLateStart = addDaysToISO(predictedStartDate, Math.ceil(variance));
 
     predictions.push({
       id: `pred-${ts}-${i}`,
       predictedStartDate,
       predictedEndDate,
-      windowEarlyStart,
-      windowLateStart,
       confidence,
-      basedOnLastNCycles: basedOnNCycles,
-      anomalyFlag,
       schemaVersion: 1,
     });
   }

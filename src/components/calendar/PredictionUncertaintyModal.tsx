@@ -18,8 +18,8 @@ export default function PredictionUncertaintyModal({
     >
       <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200">
         <p>
-          Your logged cycles vary quite a bit or there is limited data, so treat
-          these dates as a gentle guide, not an exact schedule.
+          Because your cycles vary or there isn&apos;t much history yet, these dates are approximate
+          and may shift from cycle to cycle.
         </p>
       </div>
       <div className="mt-6 flex justify-end">

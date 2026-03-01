@@ -38,7 +38,6 @@ describe('analyzeCycles', () => {
     expect(result!.cycleLengths).toEqual([28]);
     expect(result!.averageCycleLength).toBe(28);
     expect(result!.variance).toBe(0); // std dev of a single value is 0
-    expect(result!.basedOnNCycles).toBe(1);
   });
 
   it('computes correct average for two identical cycles', () => {
@@ -51,7 +50,6 @@ describe('analyzeCycles', () => {
     expect(result!.averageCycleLength).toBe(28);
     expect(result!.cycleLengths).toEqual([28, 28]);
     expect(result!.variance).toBe(0);
-    expect(result!.basedOnNCycles).toBe(2);
   });
 
   it('computes correct average and variance for varying cycles', () => {
@@ -65,7 +63,6 @@ describe('analyzeCycles', () => {
     expect(result!.averageCycleLength).toBe(29);
     expect(result!.cycleLengths).toEqual([28, 30]);
     expect(result!.variance).toBe(1); // sqrt(((28-29)² + (30-29)²) / 2) = 1
-    expect(result!.basedOnNCycles).toBe(2);
   });
 
   it('sorts periods by startDate before computing', () => {
@@ -157,36 +154,6 @@ describe('predictNextPeriods', () => {
     expect(pred.confidence).toBeGreaterThanOrEqual(0);
   });
 
-  it('anomalyFlag is false for normal cycle lengths (21–35 days)', () => {
-    const periods = [
-      makePeriod('2024-01-01'),
-      makePeriod('2024-01-29'), // 28
-      makePeriod('2024-02-26'), // 28
-    ];
-    const [pred] = predictNextPeriods(periods, 1);
-    expect(pred.anomalyFlag).toBe(false);
-  });
-
-  it('anomalyFlag is true when a cycle is shorter than 21 days', () => {
-    const periods = [
-      makePeriod('2024-01-01'),
-      makePeriod('2024-01-15'), // 14 — too short
-      makePeriod('2024-02-12'), // 28
-    ];
-    const predictions = predictNextPeriods(periods);
-    expect(predictions[0].anomalyFlag).toBe(true);
-  });
-
-  it('anomalyFlag is true when a cycle is longer than 35 days', () => {
-    const periods = [
-      makePeriod('2024-01-01'),
-      makePeriod('2024-02-10'), // 40 — too long
-      makePeriod('2024-03-09'), // 28
-    ];
-    const predictions = predictNextPeriods(periods);
-    expect(predictions[0].anomalyFlag).toBe(true);
-  });
-
   it('all predictions share the same anomalyFlag and confidence', () => {
     const periods = [
       makePeriod('2024-01-01'),
@@ -206,11 +173,7 @@ describe('predictNextPeriods', () => {
     expect(pred).toHaveProperty('id');
     expect(pred).toHaveProperty('predictedStartDate');
     expect(pred).toHaveProperty('predictedEndDate');
-    expect(pred).toHaveProperty('windowEarlyStart');
-    expect(pred).toHaveProperty('windowLateStart');
     expect(pred).toHaveProperty('confidence');
-    expect(pred).toHaveProperty('basedOnLastNCycles');
-    expect(pred).toHaveProperty('anomalyFlag');
     expect(pred.schemaVersion).toBe(1);
     expect(pred.id).toMatch(/^pred-\d+-0$/);
   });
@@ -236,28 +199,7 @@ describe('predictNextPeriods', () => {
     expect(pred.predictedEndDate).toBe('2024-03-03');
   });
 
-  it('windowEarlyStart <= predictedStartDate <= windowLateStart', () => {
-    const periods = [
-      makePeriod('2024-01-01'),
-      makePeriod('2024-01-29'), // 28
-      makePeriod('2024-02-28'), // 30 — introduces variance
-    ];
-    const [pred] = predictNextPeriods(periods, 1);
-    expect(pred.windowEarlyStart <= pred.predictedStartDate).toBe(true);
-    expect(pred.predictedStartDate <= pred.windowLateStart).toBe(true);
-  });
-
-  it('window collapses to a single date when variance is 0', () => {
-    const periods = [
-      makePeriod('2024-01-01'),
-      makePeriod('2024-01-29'), // 28 — single identical cycle, variance = 0
-    ];
-    const [pred] = predictNextPeriods(periods, 1);
-    expect(pred.windowEarlyStart).toBe(pred.predictedStartDate);
-    expect(pred.windowLateStart).toBe(pred.predictedStartDate);
-  });
-
-  it('produces low confidence and wide window for highly irregular cycles like 12, 26, 40 days', () => {
+  it('produces low confidence for highly irregular cycles like 12, 26, 40 days', () => {
     const periods = [
       makePeriod('2024-01-01'),
       makePeriod('2024-01-13'), // 12
@@ -266,8 +208,6 @@ describe('predictNextPeriods', () => {
     ];
     const [pred] = predictNextPeriods(periods, 1);
     expect(pred.confidence).toBeLessThan(0.6);
-    expect(pred.windowEarlyStart < pred.predictedStartDate).toBe(true);
-    expect(pred.predictedStartDate < pred.windowLateStart).toBe(true);
   });
 
   it('single long outlier cycle does not significantly skew average when there is strong history', () => {

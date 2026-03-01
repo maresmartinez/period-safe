@@ -10,18 +10,13 @@ export default function PredictionInfoModal({ isOpen, onClose }: PredictionInfoM
     <Modal isOpen={isOpen} onClose={onClose} title="About these predictions" size="md">
       <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200">
         <p>
-          Your predicted dates are based on patterns in the period history you&apos;ve logged so far.
-          When the timing between periods changes a lot or there isn&apos;t much data yet, the
-          predictions can be less precise.
+          These dates are estimated from the periods you&apos;ve logged so far. When cycles vary a lot
+          or there isn&apos;t much history yet, the predictions become more approximate.
         </p>
         <p>
-          Cycle length can shift for many different reasons, and all bodies are different — having
-          irregular cycles is very common. These predictions are meant as a gentle guide rather than
-          an exact schedule.
-        </p>
-        <p>
-          If something in your cycle doesn&apos;t feel right for you, or you have questions about your
-          bleeding pattern, it may help to check in with a trusted healthcare professional.
+          They&apos;re meant as a helpful guide, not an exact schedule. If something in your cycle
+          doesn&apos;t feel right for you, it may help to check in with a trusted healthcare
+          professional.
         </p>
       </div>
       <div className="mt-6 flex justify-end">

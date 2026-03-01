@@ -162,17 +162,17 @@ export default function CalendarPage() {
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
               {predictedDuration != null
-                ? `Your period usually lasts about ${predictedDuration} day${
+                ? `Typical length: around ${predictedDuration} day${
                     predictedDuration === 1 ? '' : 's'
                   }.`
-                : 'We’ll show an estimate here once there is a bit more history.'}
+                : 'We’ll estimate this once there is a bit more history.'}
             </p>
             {(predictionStability === 'high' || predictionStability === 'medium') && (
               <p className="text-xs text-neutral-500 dark:text-neutral-400 italic">
                 {predictionStability === 'high' &&
-                  'These predictions look fairly consistent based on your recent history.'}
+                  'These predictions look fairly consistent.'}
                 {predictionStability === 'medium' &&
-                  'These predictions should be helpful, but the timing may shift a bit from cycle to cycle.'}
+                  'These predictions should help, but timing may shift between cycles.'}
               </p>
             )}
           </div>
