@@ -27,6 +27,7 @@ export interface UserSettings {
 export interface Prediction {
   id: string;
   predictedStartDate: string;
+  predictedEndDate: string;
   windowEarlyStart: string;
   windowLateStart: string;
   confidence: number; // 0–1

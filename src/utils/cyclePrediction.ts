@@ -9,6 +9,9 @@
 
 import type { CycleSummary, AnomalyResult, Prediction } from '../types.ts';
 
+export const DEFAULT_CYCLE_LENGTH = 28;
+export const DEFAULT_PERIOD_LENGTH = 5;
+
 /**
  * Adds the given number of days to an ISO date string and returns a new ISO date string.
  */
@@ -87,13 +90,26 @@ export function checkCycleAnomalies(cycleLengths: number[]): AnomalyResult {
 }
 
 /**
- * Generates predicted future period start dates based on historical cycle data.
+ * Computes the average period length (in days) from periods that have a non-null endDate.
+ * Falls back to DEFAULT_PERIOD_LENGTH when no complete periods are available.
+ */
+function computeAvgPeriodLength(
+  periods: Array<{ startDate: string; endDate?: string | null }>
+): number {
+  const complete = periods.filter((p) => p.endDate);
+  if (complete.length === 0) return DEFAULT_PERIOD_LENGTH;
+  const lengths = complete.map((p) => daysBetween(p.startDate, p.endDate!) + 1);
+  return Math.round(lengths.reduce((acc, l) => acc + l, 0) / lengths.length);
+}
+
+/**
+ * Generates predicted future period start and end dates based on historical cycle data.
  *
  * Returns an empty array if fewer than 2 periods are provided.
  */
 export function predictNextPeriods(
-  periods: Array<{ startDate: string }>,
-  count = 3
+  periods: Array<{ startDate: string; endDate?: string | null }>,
+  count = 24
 ): Prediction[] {
   if (!periods || periods.length < 2) return [];
 
@@ -106,6 +122,7 @@ export function predictNextPeriods(
   const { averageCycleLength, variance, basedOnNCycles, cycleLengths } = summary;
   const { flagged: anomalyFlag } = checkCycleAnomalies(cycleLengths);
   const confidence = Math.round(Math.max(0, 1 - variance / averageCycleLength) * 100) / 100;
+  const periodLength = computeAvgPeriodLength(sorted);
 
   const ts = Date.now();
   const predictions: Prediction[] = [];
@@ -113,12 +130,14 @@ export function predictNextPeriods(
   for (let i = 0; i < count; i++) {
     const daysAhead = Math.round(averageCycleLength) * (i + 1);
     const predictedStartDate = addDaysToISO(lastPeriod.startDate, daysAhead);
+    const predictedEndDate = addDaysToISO(predictedStartDate, periodLength - 1);
     const windowEarlyStart = addDaysToISO(predictedStartDate, -Math.floor(variance));
     const windowLateStart = addDaysToISO(predictedStartDate, Math.ceil(variance));
 
     predictions.push({
       id: `pred-${ts}-${i}`,
       predictedStartDate,
+      predictedEndDate,
       windowEarlyStart,
       windowLateStart,
       confidence,

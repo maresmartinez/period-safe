@@ -1,16 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { analyzeCycles, predictNextPeriods, checkCycleAnomalies } from './cyclePrediction.ts';
+import { analyzeCycles, predictNextPeriods, checkCycleAnomalies, DEFAULT_PERIOD_LENGTH } from './cyclePrediction.ts';
 import type { Period } from '../types.ts';
 
 /**
  * Creates a minimal Period object for testing.
- * Only startDate matters for cycle calculations.
+ * Only startDate matters for cycle calculations; endDate is used for period-length calculations.
  */
-function makePeriod(startDate: string, id?: string): Period {
+function makePeriod(startDate: string, endDate?: string, id?: string): Period {
   return {
     id: id ?? `period-${startDate}`,
     startDate,
-    endDate: null,
+    endDate: endDate ?? null,
     flow: null,
     symptoms: [],
     mood: null,
@@ -96,13 +96,13 @@ describe('predictNextPeriods', () => {
     expect(predictNextPeriods([makePeriod('2024-01-01')])).toEqual([]);
   });
 
-  it('returns 3 predictions by default for 2+ periods', () => {
+  it('returns 24 predictions by default for 2+ periods', () => {
     const periods = [
       makePeriod('2024-01-01'),
       makePeriod('2024-01-29'), // 28-day cycle
     ];
     const result = predictNextPeriods(periods);
-    expect(result).toHaveLength(3);
+    expect(result).toHaveLength(24);
   });
 
   it('returns the requested count of predictions', () => {
@@ -205,6 +205,7 @@ describe('predictNextPeriods', () => {
     const [pred] = predictNextPeriods(periods, 1);
     expect(pred).toHaveProperty('id');
     expect(pred).toHaveProperty('predictedStartDate');
+    expect(pred).toHaveProperty('predictedEndDate');
     expect(pred).toHaveProperty('windowEarlyStart');
     expect(pred).toHaveProperty('windowLateStart');
     expect(pred).toHaveProperty('confidence');
@@ -212,6 +213,27 @@ describe('predictNextPeriods', () => {
     expect(pred).toHaveProperty('anomalyFlag');
     expect(pred.schemaVersion).toBe(1);
     expect(pred.id).toMatch(/^pred-\d+-0$/);
+  });
+
+  it('predictedEndDate is (DEFAULT_PERIOD_LENGTH - 1) days after predictedStartDate when no endDates exist', () => {
+    const periods = [makePeriod('2024-01-01'), makePeriod('2024-01-29')];
+    const [pred] = predictNextPeriods(periods, 1);
+    // predictedStartDate = 2024-02-26 (2024-01-29 + 28 days)
+    // predictedEndDate = 2024-02-26 + 4 = 2024-03-01 (Feb 2024 has 29 days, 26+4=30→Mar 1)
+    expect(DEFAULT_PERIOD_LENGTH).toBe(5); // guard: test assumes 5-day default
+    expect(pred.predictedStartDate).toBe('2024-02-26');
+    expect(pred.predictedEndDate).toBe('2024-03-01');
+  });
+
+  it('predictedEndDate reflects historical period length when periods have endDates', () => {
+    // Each period is 7 days long
+    const p1 = makePeriod('2024-01-01', '2024-01-07'); // 7 days
+    const p2 = makePeriod('2024-01-29', '2024-02-04'); // 7 days
+    const [pred] = predictNextPeriods([p1, p2], 1);
+    // avg period length = 7 → predictedEndDate = predictedStartDate + 6 days
+    // predictedStartDate = 2024-02-26, predictedEndDate = 2024-03-03
+    expect(pred.predictedStartDate).toBe('2024-02-26');
+    expect(pred.predictedEndDate).toBe('2024-03-03');
   });
 
   it('windowEarlyStart <= predictedStartDate <= windowLateStart', () => {

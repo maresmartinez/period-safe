@@ -50,13 +50,13 @@ function buildPeriodDateMap(periods: Period[]): Map<string, PeriodDateMapEntry> 
 
 /**
  * Builds a Set of ISO date strings for all predicted period days.
- * Marks every day in the prediction window (windowEarlyStart → windowLateStart).
+ * Marks every day in the predicted period range (predictedStartDate → predictedEndDate).
  */
 function buildPredictedDateSet(predictions: Prediction[]): Set<string> {
   const set = new Set<string>();
   for (const pred of predictions) {
-    const startStr = pred.windowEarlyStart ?? pred.predictedStartDate;
-    const endStr = pred.windowLateStart ?? pred.predictedStartDate;
+    const startStr = pred.predictedStartDate;
+    const endStr = pred.predictedEndDate ?? pred.predictedStartDate;
     if (!startStr) continue;
 
     let currentStr = startStr;
