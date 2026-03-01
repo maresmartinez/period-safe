@@ -1,46 +1,6 @@
 # Changelog
 
-PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` is automatically deployed to production.
-
-
-## Bug
-
-- Prediction lengths too long
-
-
-## Bug Fixes
-
-- use official git-cliff-action for changelog generation
-
-- correct toml syntax in cliff.toml
-
-- add github token to checkout for push permission
-
-- add write permissions to changelog workflow
-
-- make commit type patterns case-insensitive
-
-
-## Chores
-
-- set up automated changelog with git-cliff
-
-
-## Documentation
-
-- update changelog
-
-
-## Features
-
-- replace mood number picker with emoji faces
-
-- Add history page
-
-- Add Week/Month/Year calendar views, and jumping to dates
-
-- Show predicted cycle and duration
-
+PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` is automatically deployed to production. This changelog is automatically generated from conventional commits.
 
 ---
 
