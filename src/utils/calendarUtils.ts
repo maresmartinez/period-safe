@@ -69,3 +69,58 @@ export function buildPredictedDateSet(predictions: Prediction[]): Set<string> {
   }
   return set;
 }
+
+/** Shift a YYYY-MM-DD string by n days (negative = subtract) using local time (avoids UTC offset bugs). */
+function shiftDays(dateStr: string, n: number): string {
+  const y = +dateStr.slice(0, 4);
+  const m = +dateStr.slice(5, 7);
+  const d = +dateStr.slice(8, 10);
+  const date = new Date(y, m - 1, d + n);
+  const yr = date.getFullYear();
+  const mo = date.getMonth() + 1;
+  const dy = date.getDate();
+  return `${yr}-${mo < 10 ? '0' + mo : mo}-${dy < 10 ? '0' + dy : dy}`;
+}
+
+/**
+ * Builds a Set of ISO date strings for predicted ovulation days.
+ * Ovulation ≈ 14 days before each predicted period start (luteal phase method).
+ * Returns an empty set if averageCycleLength < 14 (biologically meaningless).
+ */
+export function buildOvulationDateSet(
+  predictions: Prediction[],
+  averageCycleLength: number
+): Set<string> {
+  const set = new Set<string>();
+  if (averageCycleLength < 14) return set;
+  for (const pred of predictions) {
+    if (!pred.predictedStartDate) continue;
+    set.add(shiftDays(pred.predictedStartDate, -14));
+  }
+  return set;
+}
+
+/**
+ * Builds a Set of ISO date strings for the fertile window.
+ * Covers 5 days before ovulation through 1 day after ovulation (6 days total).
+ * Ovulation day itself is NOT included — it belongs to buildOvulationDateSet.
+ * Returns an empty set if averageCycleLength < 14.
+ */
+export function buildFertilityWindowDateSet(
+  predictions: Prediction[],
+  averageCycleLength: number
+): Set<string> {
+  const set = new Set<string>();
+  if (averageCycleLength < 14) return set;
+  for (const pred of predictions) {
+    if (!pred.predictedStartDate) continue;
+    const ovulationDate = shiftDays(pred.predictedStartDate, -14);
+    // 5 days before ovulation
+    for (let i = 1; i <= 5; i++) {
+      set.add(shiftDays(ovulationDate, -i));
+    }
+    // 1 day after ovulation
+    set.add(shiftDays(ovulationDate, 1));
+  }
+  return set;
+}

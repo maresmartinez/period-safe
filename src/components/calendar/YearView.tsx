@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getCalendarDays, toISODateString } from '../../utils/dateUtils.ts';
-import { buildPeriodDateMap, buildPredictedDateSet } from '../../utils/calendarUtils.ts';
+import { buildPeriodDateMap, buildPredictedDateSet, buildOvulationDateSet, buildFertilityWindowDateSet } from '../../utils/calendarUtils.ts';
 import type { Period, Prediction } from '../../types.ts';
 
 const MONTH_NAMES = [
@@ -14,12 +14,21 @@ interface YearViewProps {
   year: number;
   periods?: Period[];
   predictions?: Prediction[];
+  averageCycleLength?: number;
   onMonthClick: (month: number) => void;
 }
 
-export default function YearView({ year, periods = [], predictions = [], onMonthClick }: YearViewProps) {
+export default function YearView({ year, periods = [], predictions = [], averageCycleLength = 28, onMonthClick }: YearViewProps) {
   const periodDateMap = useMemo(() => buildPeriodDateMap(periods), [periods]);
   const predictedDateSet = useMemo(() => buildPredictedDateSet(predictions), [predictions]);
+  const ovulationDateSet = useMemo(
+    () => buildOvulationDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
+  const fertilityWindowDateSet = useMemo(
+    () => buildFertilityWindowDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
   const today = useMemo(() => toISODateString(new Date()), []);
 
   return (
@@ -58,6 +67,8 @@ export default function YearView({ year, periods = [], predictions = [], onMonth
                   const isCurrentMonth = day.getMonth() === monthIndex;
                   const hasPeriod = periodDateMap.has(dateStr);
                   const isPredicted = !hasPeriod && predictedDateSet.has(dateStr);
+                  const isOvulation = !hasPeriod && ovulationDateSet.has(dateStr);
+                  const isFertilityWindow = !hasPeriod && !isOvulation && fertilityWindowDateSet.has(dateStr);
                   const isToday = dateStr === today;
 
                   let cellClass =
@@ -69,6 +80,10 @@ export default function YearView({ year, periods = [], predictions = [], onMonth
                     cellClass += 'bg-rose-500 text-white';
                   } else if (isPredicted) {
                     cellClass += 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300';
+                  } else if (isOvulation) {
+                    cellClass += 'bg-emerald-500 dark:bg-emerald-600 text-white';
+                  } else if (isFertilityWindow) {
+                    cellClass += 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300';
                   } else if (isToday) {
                     cellClass += 'ring-2 ring-rose-500 text-rose-600 dark:text-rose-400 font-bold';
                   } else {
