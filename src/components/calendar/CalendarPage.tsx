@@ -109,7 +109,6 @@ export default function CalendarPage() {
                 Predicted cycle & duration
               </p>
             </div>
-            {isPredictionUncertain && (
               <button
                 type="button"
                 onClick={() => setPredictionInfoOpen(true)}
@@ -130,7 +129,6 @@ export default function CalendarPage() {
                   />
                 </svg>
               </button>
-            )}
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5">

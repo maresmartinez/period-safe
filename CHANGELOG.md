@@ -25,6 +25,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - remove copy around high/med prediction stability
 
+- always show prediction info modal
+
 
 ## Features
 
