@@ -15,6 +15,7 @@ interface RenderFormProps {
   onSuccess?: ReturnType<typeof vi.fn>;
   onCancel?: ReturnType<typeof vi.fn>;
   initialData?: Parameters<typeof PeriodForm>[0]['initialData'];
+  existingPeriods?: Period[];
 }
 
 function renderForm(props: RenderFormProps = {}) {
@@ -25,6 +26,7 @@ function renderForm(props: RenderFormProps = {}) {
     <ToastProvider>
       <PeriodForm
         initialData={props.initialData ?? null}
+        existingPeriods={props.existingPeriods ?? []}
         onSuccess={onSuccess as (period: Period) => void}
         onCancel={onCancel as () => void}
       />
@@ -213,5 +215,111 @@ describe('PeriodForm', () => {
     const submitButton = screen.getByRole('button', { name: /log period/i });
     expect(submitButton).toBeDisabled();
     expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  describe('overlap validation', () => {
+    const existingPeriod: Period = {
+      id: 'existing-1',
+      startDate: '2024-03-01',
+      endDate: '2024-03-07',
+      flow: 'medium',
+      symptoms: [],
+      mood: null,
+      notes: null,
+      schemaVersion: 1,
+    };
+
+    it('shows inline error when startDate falls inside an existing period range', async () => {
+      renderForm({ existingPeriods: [existingPeriod] });
+
+      fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-04' } });
+      fireEvent.click(screen.getByRole('button', { name: /log period/i }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/overlap/i);
+      expect(periodService.createPeriod).not.toHaveBeenCalled();
+    });
+
+    it('shows inline error when new period range fully contains an existing period', async () => {
+      const contained: Period = {
+        id: 'existing-2',
+        startDate: '2024-03-04',
+        endDate: '2024-03-05',
+        flow: null,
+        symptoms: [],
+        mood: null,
+        notes: null,
+        schemaVersion: 1,
+      };
+      renderForm({ existingPeriods: [contained] });
+
+      fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-01' } });
+      fireEvent.change(screen.getByLabelText(/end date/i), { target: { value: '2024-03-10' } });
+      fireEvent.click(screen.getByRole('button', { name: /log period/i }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/overlap/i);
+      expect(periodService.createPeriod).not.toHaveBeenCalled();
+    });
+
+    it('shows inline error when new period shares only a single boundary day', async () => {
+      const singleDay: Period = {
+        id: 'existing-3',
+        startDate: '2024-03-05',
+        endDate: '2024-03-05',
+        flow: null,
+        symptoms: [],
+        mood: null,
+        notes: null,
+        schemaVersion: 1,
+      };
+      renderForm({ existingPeriods: [singleDay] });
+
+      fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-05' } });
+      fireEvent.click(screen.getByRole('button', { name: /log period/i }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/overlap/i);
+      expect(periodService.createPeriod).not.toHaveBeenCalled();
+    });
+
+    it('does not show error when periods are adjacent but non-overlapping', async () => {
+      const mockPeriod = { id: 'new-1', startDate: '2024-03-08', schemaVersion: 1 };
+      vi.mocked(periodService.createPeriod).mockResolvedValue(mockPeriod as unknown as Period);
+
+      renderForm({ existingPeriods: [existingPeriod] });
+
+      fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-08' } });
+      fireEvent.click(screen.getByRole('button', { name: /log period/i }));
+
+      await waitFor(() => {
+        expect(periodService.createPeriod).toHaveBeenCalled();
+      });
+      expect(screen.queryByText(/overlap/i)).not.toBeInTheDocument();
+    });
+
+    it('does not flag overlap with self in edit mode', async () => {
+      const mockUpdated = { ...existingPeriod };
+      vi.mocked(periodService.updatePeriod).mockResolvedValue(mockUpdated);
+
+      renderForm({
+        initialData: existingPeriod,
+        existingPeriods: [existingPeriod],
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+      await waitFor(() => {
+        expect(periodService.updatePeriod).toHaveBeenCalled();
+      });
+      expect(periodService.createPeriod).not.toHaveBeenCalled();
+    });
+
+    it('error message references the conflicting period start date', async () => {
+      renderForm({ existingPeriods: [existingPeriod] });
+
+      fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2024-03-04' } });
+      fireEvent.click(screen.getByRole('button', { name: /log period/i }));
+
+      const alert = await screen.findByRole('alert');
+      expect(alert).toHaveTextContent(/Mar 1/i);
+    });
   });
 });

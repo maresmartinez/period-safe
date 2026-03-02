@@ -114,6 +114,19 @@ export function formatYearLabel(year: number): string {
   return String(year);
 }
 
+/**
+ * Returns true if two period date ranges overlap (inclusive on both ends).
+ * A null endDate is treated as equal to startDate (single-day period).
+ */
+export function periodsOverlap(
+  a: { startDate: string; endDate: string | null },
+  b: { startDate: string; endDate: string | null }
+): boolean {
+  const aEnd = a.endDate ?? a.startDate;
+  const bEnd = b.endDate ?? b.startDate;
+  return a.startDate <= bEnd && b.startDate <= aEnd;
+}
+
 // Normalize a Date or ISO string to a midnight local-time Date for comparisons
 function toLocalDate(dateOrString: Date | string): Date {
   if (typeof dateOrString === 'string') {

@@ -1,11 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import PeriodForm from './PeriodForm.tsx';
+import usePeriodData from '../../hooks/usePeriodData.ts';
 import type { Period } from '../../types.ts';
 
 export default function PeriodFormPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const editPeriod = (state as { period?: Period } | null)?.period ?? null;
+  const { periods } = usePeriodData();
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
@@ -14,6 +16,7 @@ export default function PeriodFormPage() {
       </h1>
       <PeriodForm
         initialData={editPeriod}
+        existingPeriods={periods}
         onSuccess={() => navigate('/')}
         onCancel={() => navigate('/')}
       />
