@@ -49,6 +49,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - Filter periods to visible window before building date map
 
+- Use event delegation for calendar cell clicks
+
 
 ## Bug
 
