@@ -13,7 +13,6 @@ interface CalendarCellProps {
   isFertilityWindow?: boolean;
   isFocused: boolean;
   ariaLabel: string;
-  onClick: () => void;
 }
 
 function CalendarCell({
@@ -27,7 +26,6 @@ function CalendarCell({
   isFertilityWindow = false,
   isFocused,
   ariaLabel,
-  onClick,
 }: CalendarCellProps) {
   const isLoggedPeriod = periodState !== null;
   const isInteractive = isLoggedPeriod;
@@ -80,7 +78,6 @@ function CalendarCell({
       aria-selected={isFocused}
       tabIndex={isFocused ? 0 : -1}
       className={tdClass}
-      onClick={onClick}
     >
       {/* Background bar connecting adjacent period cells */}
       {barClass && <div className={barClass} aria-hidden="true" />}

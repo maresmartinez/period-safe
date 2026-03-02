@@ -96,10 +96,14 @@ export default function CalendarGrid({
     }
   }, [focusedDate]);
 
-  const handleCellClick = useCallback(
-    (date: Date) => {
+  const handleTableClick = useCallback(
+    (e: React.MouseEvent<HTMLTableElement>) => {
+      const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-date]');
+      if (!cell) return;
+      const dateStr = cell.dataset.date!;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
       setFocusedDate(date);
-      const dateStr = toISODateString(date);
       const periodInfo = periodDateMap.get(dateStr);
       if (periodInfo) {
         setSelectedPeriod(periodInfo.period);
@@ -210,6 +214,7 @@ export default function CalendarGrid({
         role="grid"
         aria-label={`Period calendar, ${monthYearLabel}`}
         onKeyDown={handleKeyDown}
+        onClick={handleTableClick}
         className="w-full border-collapse table-fixed"
       >
         <thead>
@@ -263,7 +268,6 @@ export default function CalendarGrid({
                     isFertilityWindow={isFertilityWindow}
                     isFocused={isFocused}
                     ariaLabel={ariaLabel}
-                    onClick={() => handleCellClick(date)}
                   />
                 );
               })}
