@@ -24,7 +24,6 @@ export default function CalendarPage() {
   const {
     predictions,
     cycleSummary,
-    isPredictionUncertain,
     predictionStability,
   } = usePeriodPrediction(periods);
   const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } =
