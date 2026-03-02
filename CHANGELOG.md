@@ -50,6 +50,11 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 - Filter periods to visible window before building date map
 
 
+## Bug
+
+- do not allow periods to overlap
+
+
 ---
 
 ## Post-MVP (Backlog)
