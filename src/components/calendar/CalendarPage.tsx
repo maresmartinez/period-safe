@@ -198,6 +198,10 @@ export default function CalendarPage() {
           />
           Predicted fertility window
         </span>
+        <span className="flex items-center gap-1.5">
+          <span className="text-amber-500 text-sm">★</span>
+          Intimate day
+        </span>
       </div>
 
       <JumpToDateModal
