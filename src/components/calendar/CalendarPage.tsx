@@ -182,7 +182,7 @@ export default function CalendarPage() {
         </span>
         <span className="flex items-center gap-1.5">
           <span
-            className="inline-block h-3 w-3 rounded-full bg-rose-100 border border-dashed border-rose-400"
+            className="inline-block h-3 w-3 rounded-full bg-rose-100 dark:bg-rose-900/40 border border-dashed border-rose-400 dark:border-rose-600"
             aria-hidden="true"
           />
           Predicted period
