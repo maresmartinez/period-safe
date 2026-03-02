@@ -3,6 +3,7 @@ import CalendarCell from './CalendarCell.tsx';
 import PeriodDetailModal from './PeriodDetailModal.tsx';
 import { getCalendarDays, toISODateString } from '../../utils/dateUtils.ts';
 import { buildPeriodDateMap, buildPredictedDateSet, buildOvulationDateSet, buildFertilityWindowDateSet } from '../../utils/calendarUtils.ts';
+import useIntimacyData from '../../hooks/useIntimacyData.ts';
 import type { Period, Prediction } from '../../types.ts';
 
 const DAY_HEADERS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -38,6 +39,7 @@ export default function CalendarGrid({
   onGoToNextMonth,
 }: CalendarGridProps) {
   const today = useMemo(() => toISODateString(new Date()), []);
+  const { intimacy } = useIntimacyData();
 
   const [focusedDate, setFocusedDate] = useState(() => new Date());
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
@@ -73,6 +75,9 @@ export default function CalendarGrid({
     () => buildFertilityWindowDateSet(predictions, averageCycleLength),
     [predictions, averageCycleLength]
   );
+  const intimacyDateSet = useMemo(() => {
+    return new Set(intimacy.map(e => e.date));
+  }, [intimacy]);
 
   const monthYearLabel = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
 
@@ -266,6 +271,7 @@ export default function CalendarGrid({
                     isPredicted={isPredicted}
                     isOvulation={isOvulation}
                     isFertilityWindow={isFertilityWindow}
+                    isIntimacyDay={intimacyDateSet.has(dateStr)}
                     isFocused={isFocused}
                     ariaLabel={ariaLabel}
                   />
