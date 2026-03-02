@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import PeriodForm from './PeriodForm.tsx';
+import LogEntryForm from './LogEntryForm.tsx';
 import { ToastProvider } from '../../stores/ToastContext.tsx';
 import ToastContainer from '../Toast.tsx';
 import * as periodService from '../../services/periodService.ts';
-import type { Period } from '../../types.ts';
+import type { Period, Intimacy } from '../../types.ts';
 
 vi.mock('../../services/periodService.ts', () => ({
   createPeriod: vi.fn(),
@@ -14,8 +14,9 @@ vi.mock('../../services/periodService.ts', () => ({
 interface RenderFormProps {
   onSuccess?: ReturnType<typeof vi.fn>;
   onCancel?: ReturnType<typeof vi.fn>;
-  initialData?: Parameters<typeof PeriodForm>[0]['initialData'];
+  initialData?: Parameters<typeof LogEntryForm>[0]['initialData'];
   existingPeriods?: Period[];
+  initialMode?: 'period' | 'intimacy';
 }
 
 function renderForm(props: RenderFormProps = {}) {
@@ -24,11 +25,12 @@ function renderForm(props: RenderFormProps = {}) {
 
   render(
     <ToastProvider>
-      <PeriodForm
+      <LogEntryForm
         initialData={props.initialData ?? null}
         existingPeriods={props.existingPeriods ?? []}
-        onSuccess={onSuccess as (period: Period) => void}
+        onSuccess={onSuccess as (entry: Period | Intimacy) => void}
         onCancel={onCancel as () => void}
+        initialMode={props.initialMode}
       />
       <ToastContainer />
     </ToastProvider>
@@ -37,12 +39,12 @@ function renderForm(props: RenderFormProps = {}) {
   return { onSuccess, onCancel };
 }
 
-describe('PeriodForm', () => {
+describe('LogEntryForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders all field types', () => {
+  it('renders all field types in period mode', () => {
     renderForm();
 
     expect(screen.getByLabelText(/start date/i)).toBeInTheDocument();
@@ -51,6 +53,24 @@ describe('PeriodForm', () => {
     expect(screen.getByRole('group', { name: /symptoms/i })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: /mood/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/notes/i)).toBeInTheDocument();
+  });
+
+  it('shows type toggle with period selected by default', () => {
+    renderForm();
+
+    expect(screen.getByRole('tab', { name: /period/i })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /intimacy/i })).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('switches to intimacy mode when intimacy tab is clicked', () => {
+    renderForm();
+
+    fireEvent.click(screen.getByRole('tab', { name: /intimacy/i }));
+
+    expect(screen.getByRole('tab', { name: /period/i })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('tab', { name: /intimacy/i })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByLabelText(/^date/i)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /protection/i })).toBeInTheDocument();
   });
 
   it('shows inline error when submitted without startDate', async () => {
@@ -204,7 +224,6 @@ describe('PeriodForm', () => {
   });
 
   it('disables submit button and shows spinner while saving', async () => {
-    // Never resolves — keeps loading state active
     vi.mocked(periodService.createPeriod).mockImplementation(() => new Promise(() => {}));
 
     renderForm();
