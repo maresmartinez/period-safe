@@ -79,11 +79,11 @@ export default function YearView({ year, periods = [], predictions = [], average
                   } else if (hasPeriod) {
                     cellClass += 'bg-rose-500 text-white';
                   } else if (isPredicted) {
-                    cellClass += 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300';
+                    cellClass += 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 border border-dashed border-rose-300 dark:border-rose-600';
                   } else if (isOvulation) {
-                    cellClass += 'bg-emerald-500 dark:bg-emerald-600 text-white';
+                    cellClass += 'bg-purple-500 dark:bg-purple-600 text-white';
                   } else if (isFertilityWindow) {
-                    cellClass += 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300';
+                    cellClass += 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-dashed border-purple-400 dark:border-purple-600';
                   } else if (isToday) {
                     cellClass += 'ring-2 ring-rose-500 text-rose-600 dark:text-rose-400 font-bold';
                   } else {

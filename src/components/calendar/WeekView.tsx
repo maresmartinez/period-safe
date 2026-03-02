@@ -130,7 +130,7 @@ export default function WeekView({
               {isOvulation && (
                 <div
                   aria-label={`${dayLabel}, predicted ovulation`}
-                  className="w-full mt-1 rounded bg-emerald-500 dark:bg-emerald-600 text-white text-xs px-1 py-1 min-h-[32px] font-medium"
+                  className="w-full mt-1 rounded bg-purple-500 dark:bg-purple-600 text-white text-xs px-1 py-1 min-h-[32px] font-medium"
                 >
                   Ovulation
                 </div>
@@ -140,7 +140,7 @@ export default function WeekView({
               {isFertilityWindow && (
                 <div
                   aria-label={`${dayLabel}, fertility window`}
-                  className="w-full mt-1 rounded border border-dashed border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs px-1 py-1 min-h-[32px]"
+                  className="w-full mt-1 rounded border border-dashed border-purple-400 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs px-1 py-1 min-h-[32px]"
                 >
                   Fertile
                 </div>
