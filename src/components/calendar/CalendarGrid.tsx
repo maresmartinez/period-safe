@@ -49,7 +49,19 @@ export default function CalendarGrid({
     [currentYear, currentMonth]
   );
 
-  const periodDateMap = useMemo(() => buildPeriodDateMap(periods), [periods]);
+  const visiblePeriods = useMemo(
+    () => {
+      const windowStart = toISODateString(calendarDays[0]);
+      const windowEnd = toISODateString(calendarDays[calendarDays.length - 1]);
+      return periods.filter(p => {
+        const end = p.endDate ?? p.startDate;
+        return p.startDate <= windowEnd && end >= windowStart;
+      });
+    },
+    [periods, calendarDays]
+  );
+
+  const periodDateMap = useMemo(() => buildPeriodDateMap(visiblePeriods), [visiblePeriods]);
   const predictedDateSet = useMemo(() => buildPredictedDateSet(predictions), [predictions]);
 
   const monthYearLabel = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
