@@ -21,6 +21,11 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 - make commit type patterns case-insensitive
 
 
+## Documentation
+
+- remove copy around high/med prediction stability
+
+
 ## Features
 
 - replace mood number picker with emoji faces
