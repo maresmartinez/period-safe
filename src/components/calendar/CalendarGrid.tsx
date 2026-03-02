@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import CalendarCell from './CalendarCell.tsx';
 import PeriodDetailModal from './PeriodDetailModal.tsx';
+import IntimacyDetailModal from './IntimacyDetailModal.tsx';
+import DualEntryModal from './DualEntryModal.tsx';
 import { getCalendarDays, toISODateString } from '../../utils/dateUtils.ts';
 import { buildPeriodDateMap, buildPredictedDateSet, buildOvulationDateSet, buildFertilityWindowDateSet } from '../../utils/calendarUtils.ts';
 import useIntimacyData from '../../hooks/useIntimacyData.ts';
-import type { Period, Prediction } from '../../types.ts';
+import type { Period, Prediction, Intimacy } from '../../types.ts';
 
 const DAY_HEADERS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -20,6 +22,8 @@ interface CalendarGridProps {
   onPeriodClick?: (period: Period) => void;
   onEditPeriod?: (period: Period) => void;
   onDeletePeriod?: (id: string) => void;
+  onEditIntimacy?: (intimacy: Intimacy) => void;
+  onDeleteIntimacy?: (id: string) => void;
   currentMonth: number;
   currentYear: number;
   onGoToPrevMonth: () => void;
@@ -33,6 +37,8 @@ export default function CalendarGrid({
   onPeriodClick,
   onEditPeriod,
   onDeletePeriod,
+  onEditIntimacy,
+  onDeleteIntimacy,
   currentMonth,
   currentYear,
   onGoToPrevMonth,
@@ -43,6 +49,8 @@ export default function CalendarGrid({
 
   const [focusedDate, setFocusedDate] = useState(() => new Date());
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
+  const [selectedIntimacy, setSelectedIntimacy] = useState<Intimacy | null>(null);
+  const [selectedDual, setSelectedDual] = useState<{ period: Period; intimacy: Intimacy } | null>(null);
 
   const gridRef = useRef<HTMLTableElement>(null);
   // Track whether navigation was triggered by keyboard (to preserve focusedDate)
@@ -109,13 +117,26 @@ export default function CalendarGrid({
       const [y, m, d] = dateStr.split('-').map(Number);
       const date = new Date(y, m - 1, d);
       setFocusedDate(date);
+      
       const periodInfo = periodDateMap.get(dateStr);
-      if (periodInfo) {
+      const intimacyEntry = intimacy.find(e => e.date === dateStr);
+      
+      if (periodInfo && intimacyEntry) {
+        setSelectedDual({ period: periodInfo.period, intimacy: intimacyEntry });
+        setSelectedPeriod(null);
+        setSelectedIntimacy(null);
+      } else if (periodInfo) {
         setSelectedPeriod(periodInfo.period);
+        setSelectedDual(null);
+        setSelectedIntimacy(null);
         onPeriodClick?.(periodInfo.period);
+      } else if (intimacyEntry) {
+        setSelectedIntimacy(intimacyEntry);
+        setSelectedDual(null);
+        setSelectedPeriod(null);
       }
     },
-    [periodDateMap, onPeriodClick]
+    [periodDateMap, onPeriodClick, intimacy]
   );
 
   const handleKeyDown = useCallback(
@@ -169,9 +190,21 @@ export default function CalendarGrid({
           e.preventDefault();
           const dateStr = toISODateString(focusedDate);
           const periodInfo = periodDateMap.get(dateStr);
-          if (periodInfo) {
+          const intimacyEntry = intimacy.find(e => e.date === dateStr);
+          
+          if (periodInfo && intimacyEntry) {
+            setSelectedDual({ period: periodInfo.period, intimacy: intimacyEntry });
+            setSelectedPeriod(null);
+            setSelectedIntimacy(null);
+          } else if (periodInfo) {
             setSelectedPeriod(periodInfo.period);
+            setSelectedDual(null);
+            setSelectedIntimacy(null);
             onPeriodClick?.(periodInfo.period);
+          } else if (intimacyEntry) {
+            setSelectedIntimacy(intimacyEntry);
+            setSelectedDual(null);
+            setSelectedPeriod(null);
           }
           return;
         }
@@ -197,7 +230,7 @@ export default function CalendarGrid({
 
       setFocusedDate(newDate);
     },
-    [focusedDate, currentMonth, currentYear, periodDateMap, onPeriodClick, onGoToPrevMonth, onGoToNextMonth]
+    [focusedDate, currentMonth, currentYear, periodDateMap, onPeriodClick, onGoToPrevMonth, onGoToNextMonth, intimacy]
   );
 
   // Group days into weeks (rows of 7)
@@ -288,6 +321,33 @@ export default function CalendarGrid({
         onEdit={(p) => { setSelectedPeriod(null); onEditPeriod?.(p); }}
         onDelete={(id) => { onDeletePeriod?.(id); setSelectedPeriod(null); }}
       />
+
+      <IntimacyDetailModal
+        intimacy={selectedIntimacy}
+        onClose={() => setSelectedIntimacy(null)}
+        onEdit={(i) => { setSelectedIntimacy(null); onEditIntimacy?.(i); }}
+        onDelete={(id) => { onDeleteIntimacy?.(id); setSelectedIntimacy(null); }}
+      />
+
+      {selectedDual && (
+        <DualEntryModal
+          period={selectedDual.period}
+          intimacy={selectedDual.intimacy}
+          onClose={() => setSelectedDual(null)}
+          onEditPeriod={(p) => { setSelectedDual(null); onEditPeriod?.(p); }}
+          onEditIntimacy={(i) => { setSelectedDual(null); onEditIntimacy?.(i); }}
+          onDeletePeriod={(id) => {
+            onDeletePeriod?.(id);
+            setSelectedDual(null);
+            setSelectedIntimacy(selectedDual.intimacy);
+          }}
+          onDeleteIntimacy={(id) => {
+            onDeleteIntimacy?.(id);
+            setSelectedDual(null);
+            setSelectedPeriod(selectedDual.period);
+          }}
+        />
+      )}
     </div>
   );
 }
