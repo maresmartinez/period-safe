@@ -1,23 +1,31 @@
 import Modal from '../Modal.tsx';
 
-interface PredictionInfoModalProps {
+interface PredictionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  showUncertaintyNote?: boolean;
 }
 
-export default function PredictionInfoModal({ isOpen, onClose }: PredictionInfoModalProps) {
+export default function PredictionModal({
+  isOpen,
+  onClose
+}: PredictionModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="About these predictions" size="md">
       <div className="space-y-4 text-sm text-neutral-700 dark:text-neutral-200">
+        <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 p-3 text-amber-800 dark:text-amber-300">
+          When your cycles vary or there isn&apos;t much history yet, these dates are
+          approximate and may shift from cycle to cycle.
+        </div>
         <div className="space-y-3">
           <p>
-            These dates are estimated from the periods you&apos;ve logged so far. When cycles vary a lot
-            or there isn&apos;t much history yet, the predictions become more approximate.
+            These dates are estimated from the periods you&apos;ve logged so far. When cycles vary
+            a lot or there isn&apos;t much history yet, the predictions become more approximate.
           </p>
           <p>
-            They&apos;re meant as a helpful guide, not an exact schedule. If something in your cycle
-            doesn&apos;t feel right for you, it may help to check in with a trusted healthcare
-            professional.
+            They&apos;re meant as a helpful guide, not an exact schedule. If something in your
+            cycle doesn&apos;t feel right for you, it may help to check in with a trusted
+            healthcare professional.
           </p>
         </div>
 
@@ -53,4 +61,3 @@ export default function PredictionInfoModal({ isOpen, onClose }: PredictionInfoM
     </Modal>
   );
 }
-
