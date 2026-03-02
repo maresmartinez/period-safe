@@ -9,6 +9,8 @@ interface CalendarCellProps {
   isToday: boolean;
   periodState: PeriodPosition | null;
   isPredicted: boolean;
+  isOvulation?: boolean;
+  isFertilityWindow?: boolean;
   isFocused: boolean;
   ariaLabel: string;
   onClick: () => void;
@@ -21,6 +23,8 @@ function CalendarCell({
   isToday,
   periodState,
   isPredicted,
+  isOvulation = false,
+  isFertilityWindow = false,
   isFocused,
   ariaLabel,
   onClick,
@@ -46,6 +50,10 @@ function CalendarCell({
     if (isInteractive) {
       circleClass += ' hover:bg-rose-600 dark:hover:bg-rose-500';
     }
+  } else if (isOvulation) {
+    circleClass += ' bg-emerald-500 dark:bg-emerald-600 text-white';
+  } else if (isFertilityWindow) {
+    circleClass += ' bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-dashed border-emerald-400 dark:border-emerald-600';
   } else if (isPredicted) {
     circleClass += ' bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-dashed border-rose-300 dark:border-rose-600';
   } else if (isToday) {
@@ -83,7 +91,7 @@ function CalendarCell({
           {date.getDate()}
         </div>
         {/* Today dot indicator (when not a period day) */}
-        {isToday && !isLoggedPeriod && !isPredicted && (
+        {isToday && !isLoggedPeriod && !isOvulation && !isFertilityWindow && !isPredicted && (
           <span
             className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-rose-500"
             aria-hidden="true"

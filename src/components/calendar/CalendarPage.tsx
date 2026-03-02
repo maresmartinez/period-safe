@@ -24,7 +24,6 @@ export default function CalendarPage() {
   const {
     predictions,
     cycleSummary,
-    isPredictionUncertain,
     predictionStability,
   } = usePeriodPrediction(periods);
   const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } =
@@ -173,6 +172,7 @@ export default function CalendarPage() {
         <CalendarGrid
           periods={periods}
           predictions={predictions}
+          averageCycleLength={cycleSummary?.averageCycleLength ?? 28}
           currentMonth={currentMonth}
           currentYear={currentYear}
           onGoToPrevMonth={handleGoToPrevMonth}
@@ -187,6 +187,7 @@ export default function CalendarPage() {
           anchorDate={anchorDate}
           periods={periods}
           predictions={predictions}
+          averageCycleLength={cycleSummary?.averageCycleLength ?? 28}
           onEditPeriod={(period) => navigate('/log', { state: { period } })}
           onDeletePeriod={deletePeriod}
         />
@@ -197,6 +198,7 @@ export default function CalendarPage() {
           year={currentYear}
           periods={periods}
           predictions={predictions}
+          averageCycleLength={cycleSummary?.averageCycleLength ?? 28}
           onMonthClick={handleMonthClickFromYear}
         />
       )}
@@ -213,6 +215,17 @@ export default function CalendarPage() {
             aria-hidden="true"
           />
           Predicted period
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-3 w-3 rounded-full bg-emerald-500" aria-hidden="true" />
+          Predicted ovulation day
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span
+            className="inline-block h-3 w-3 rounded-full bg-emerald-100 border border-dashed border-emerald-400"
+            aria-hidden="true"
+          />
+          Predicted fertility window
         </span>
       </div>
 

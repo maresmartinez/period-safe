@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import CalendarCell from './CalendarCell.tsx';
 import PeriodDetailModal from './PeriodDetailModal.tsx';
 import { getCalendarDays, toISODateString } from '../../utils/dateUtils.ts';
-import { buildPeriodDateMap, buildPredictedDateSet } from '../../utils/calendarUtils.ts';
+import { buildPeriodDateMap, buildPredictedDateSet, buildOvulationDateSet, buildFertilityWindowDateSet } from '../../utils/calendarUtils.ts';
 import type { Period, Prediction } from '../../types.ts';
 
 const DAY_HEADERS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -15,6 +15,7 @@ const MONTH_NAMES = [
 interface CalendarGridProps {
   periods?: Period[];
   predictions?: Prediction[];
+  averageCycleLength?: number;
   onPeriodClick?: (period: Period) => void;
   onEditPeriod?: (period: Period) => void;
   onDeletePeriod?: (id: string) => void;
@@ -27,6 +28,7 @@ interface CalendarGridProps {
 export default function CalendarGrid({
   periods = [],
   predictions = [],
+  averageCycleLength = 28,
   onPeriodClick,
   onEditPeriod,
   onDeletePeriod,
@@ -63,6 +65,14 @@ export default function CalendarGrid({
 
   const periodDateMap = useMemo(() => buildPeriodDateMap(visiblePeriods), [visiblePeriods]);
   const predictedDateSet = useMemo(() => buildPredictedDateSet(predictions), [predictions]);
+  const ovulationDateSet = useMemo(
+    () => buildOvulationDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
+  const fertilityWindowDateSet = useMemo(
+    () => buildFertilityWindowDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
 
   const monthYearLabel = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
 
@@ -227,6 +237,8 @@ export default function CalendarGrid({
                 const isToday = dateStr === today;
                 const periodInfo = periodDateMap.get(dateStr);
                 const isPredicted = !periodInfo && predictedDateSet.has(dateStr);
+                const isOvulation = !periodInfo && ovulationDateSet.has(dateStr);
+                const isFertilityWindow = !periodInfo && !isOvulation && fertilityWindowDateSet.has(dateStr);
                 const isFocused = dateStr === focusedDateStr;
 
                 // Build accessible label
@@ -235,6 +247,8 @@ export default function CalendarGrid({
                 let ariaLabel = `${dayName}, ${monthName} ${date.getDate()}, ${date.getFullYear()}`;
                 if (periodInfo) ariaLabel += ', has period';
                 else if (isPredicted) ariaLabel += ', predicted period';
+                else if (isOvulation) ariaLabel += ', predicted ovulation';
+                else if (isFertilityWindow) ariaLabel += ', fertility window';
 
                 return (
                   <CalendarCell
@@ -245,6 +259,8 @@ export default function CalendarGrid({
                     isToday={isToday}
                     periodState={periodInfo?.position ?? null}
                     isPredicted={isPredicted}
+                    isOvulation={isOvulation}
+                    isFertilityWindow={isFertilityWindow}
                     isFocused={isFocused}
                     ariaLabel={ariaLabel}
                     onClick={() => handleCellClick(date)}

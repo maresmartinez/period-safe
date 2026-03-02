@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { getWeekDays, toISODateString, formatWeekRangeLabel, getWeekStart } from '../../utils/dateUtils.ts';
-import { buildPeriodDateMap, buildPredictedDateSet } from '../../utils/calendarUtils.ts';
+import { buildPeriodDateMap, buildPredictedDateSet, buildOvulationDateSet, buildFertilityWindowDateSet } from '../../utils/calendarUtils.ts';
 import PeriodDetailModal from './PeriodDetailModal.tsx';
 import type { Period, Prediction } from '../../types.ts';
 
@@ -14,6 +14,7 @@ interface WeekViewProps {
   anchorDate: Date;
   periods?: Period[];
   predictions?: Prediction[];
+  averageCycleLength?: number;
   onEditPeriod?: (period: Period) => void;
   onDeletePeriod?: (id: string) => void;
 }
@@ -22,6 +23,7 @@ export default function WeekView({
   anchorDate,
   periods = [],
   predictions = [],
+  averageCycleLength = 28,
   onEditPeriod,
   onDeletePeriod,
 }: WeekViewProps) {
@@ -33,6 +35,14 @@ export default function WeekView({
 
   const periodDateMap = useMemo(() => buildPeriodDateMap(periods), [periods]);
   const predictedDateSet = useMemo(() => buildPredictedDateSet(predictions), [predictions]);
+  const ovulationDateSet = useMemo(
+    () => buildOvulationDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
+  const fertilityWindowDateSet = useMemo(
+    () => buildFertilityWindowDateSet(predictions, averageCycleLength),
+    [predictions, averageCycleLength]
+  );
 
   const today = useMemo(() => toISODateString(new Date()), []);
 
@@ -48,6 +58,8 @@ export default function WeekView({
           const isToday = dateStr === today;
           const periodInfo = periodDateMap.get(dateStr);
           const isPredicted = !periodInfo && predictedDateSet.has(dateStr);
+          const isOvulation = !periodInfo && ovulationDateSet.has(dateStr);
+          const isFertilityWindow = !periodInfo && !isOvulation && fertilityWindowDateSet.has(dateStr);
           const dayOfWeek = day.getDay();
           const dayLabel = `${DAY_OF_WEEK_SHORT[dayOfWeek]}, ${MONTH_NAMES[day.getMonth()]} ${day.getDate()}`;
 
@@ -111,6 +123,26 @@ export default function WeekView({
                   className="w-full mt-1 rounded border border-dashed border-rose-300 dark:border-rose-600 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-300 text-xs px-1 py-1 min-h-[32px]"
                 >
                   Predicted
+                </div>
+              )}
+
+              {/* Ovulation indicator */}
+              {isOvulation && (
+                <div
+                  aria-label={`${dayLabel}, predicted ovulation`}
+                  className="w-full mt-1 rounded bg-emerald-500 dark:bg-emerald-600 text-white text-xs px-1 py-1 min-h-[32px] font-medium"
+                >
+                  Ovulation
+                </div>
+              )}
+
+              {/* Fertility window indicator */}
+              {isFertilityWindow && (
+                <div
+                  aria-label={`${dayLabel}, fertility window`}
+                  className="w-full mt-1 rounded border border-dashed border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs px-1 py-1 min-h-[32px]"
+                >
+                  Fertile
                 </div>
               )}
             </div>
