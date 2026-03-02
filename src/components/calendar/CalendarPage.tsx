@@ -182,7 +182,7 @@ export default function CalendarPage() {
         </span>
         <span className="flex items-center gap-1.5">
           <span
-            className="inline-block h-3 w-3 rounded-full bg-rose-100 dark:bg-rose-900/40 border border-dashed border-rose-400 dark:border-rose-600"
+            className="inline-block h-3 w-3 rounded-full bg-rose-100 dark:bg-rose-900/40 border border-dashed border-rose-300 dark:border-rose-600"
             aria-hidden="true"
           />
           Predicted period
@@ -193,7 +193,7 @@ export default function CalendarPage() {
         </span>
         <span className="flex items-center gap-1.5">
           <span
-            className="inline-block h-3 w-3 rounded-full bg-purple-100 border border-dashed border-purple-400"
+            className="inline-block h-3 w-3 rounded-full bg-purple-100 dark:bg-purple-900/40 border border-dashed border-purple-400 dark:border-purple-600"
             aria-hidden="true"
           />
           Predicted fertility window
