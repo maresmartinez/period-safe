@@ -49,9 +49,9 @@ function CalendarCell({
       circleClass += ' hover:bg-rose-600 dark:hover:bg-rose-500';
     }
   } else if (isOvulation) {
-    circleClass += ' bg-emerald-500 dark:bg-emerald-600 text-white';
+    circleClass += ' bg-purple-500 dark:bg-purple-600 text-white';
   } else if (isFertilityWindow) {
-    circleClass += ' bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-dashed border-emerald-400 dark:border-emerald-600';
+    circleClass += ' bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-dashed border-purple-400 dark:border-purple-600';
   } else if (isPredicted) {
     circleClass += ' bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-dashed border-rose-300 dark:border-rose-600';
   } else if (isToday) {
