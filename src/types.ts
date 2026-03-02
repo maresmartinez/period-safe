@@ -4,6 +4,16 @@
 
 export type FlowLevel = 'light' | 'medium' | 'heavy';
 
+export type ProtectionLevel = 'protected' | 'unprotected';
+
+export interface Intimacy {
+  id: string;
+  date: string;
+  protection: ProtectionLevel | null;
+  notes: string | null;
+  schemaVersion: 1;
+}
+
 export interface Period {
   id: string;
   startDate: string; // ISO 8601 YYYY-MM-DD
@@ -73,6 +83,7 @@ export interface ExportPayload {
   appName: string;
   data: {
     periods: Period[];
+    intimacy: Intimacy[];
     settings: UserSettings | null;
   };
 }
