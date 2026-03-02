@@ -167,14 +167,6 @@ export default function CalendarPage() {
                   }.`
                 : 'We’ll estimate this once there is a bit more history.'}
             </p>
-            {(predictionStability === 'high' || predictionStability === 'medium') && (
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 italic">
-                {predictionStability === 'high' &&
-                  'These predictions look fairly consistent.'}
-                {predictionStability === 'medium' &&
-                  'These predictions should help, but timing may shift between cycles.'}
-              </p>
-            )}
           </div>
         </div>
       </div>

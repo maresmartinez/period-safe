@@ -199,7 +199,6 @@ PeriodSafe uses **conventional commits** to auto-generate the changelog via git-
 
 **Rules:**
 - Use lowercase after the colon: ✅ `feat: add feature` ✗ `feat: Add feature`
-- Capitalize first letter of commit message after prefix
 - Keep messages concise (< 72 chars)
 - PR titles should also follow this format for clarity
 
