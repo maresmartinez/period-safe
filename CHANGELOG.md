@@ -20,6 +20,10 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - make commit type patterns case-insensitive
 
+- Match predicted period legend swatch to dark mode cell styling
+
+- Align legend swatches and year view cells with cell border styling
+
 
 ## Documentation
 
@@ -43,6 +47,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 - add predictions for ovulation and fertility window
 
 - redesign prediction cards for clarity
+
+- Change ovulation and fertility prediction colors to purple
 
 
 ## Performance
