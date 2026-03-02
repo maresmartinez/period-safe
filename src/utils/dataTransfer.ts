@@ -1,5 +1,6 @@
 import { SCHEMA_VERSION, APP_NAME } from '../config.ts';
 import { getAllPeriods, clearAllPeriods, getPeriod } from '../services/periodService.ts';
+import { getAllIntimacy, clearAllIntimacy } from '../services/intimacyService.ts';
 import { getSettings, saveSettings } from '../services/settingsService.ts';
 import { initDB } from '../services/db.ts';
 import type { ExportPayload, ImportValidationResult, Period, Intimacy } from '../types.ts';
@@ -14,12 +15,13 @@ function isValidISODate(str: unknown): boolean {
 
 export async function exportData(): Promise<string> {
   const periods = await getAllPeriods();
+  const intimacy = await getAllIntimacy();
   const settings = getSettings();
   const payload: ExportPayload = {
     schemaVersion: SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     appName: APP_NAME,
-    data: { periods, intimacy: [], settings },
+    data: { periods, intimacy, settings },
   };
   return JSON.stringify(payload, null, 2);
 }
@@ -81,6 +83,17 @@ export function validateImportShape(parsed: unknown): ImportValidationResult {
 
   if (data['intimacy'] !== undefined && !Array.isArray(data['intimacy'])) {
     errors.push('data.intimacy must be an array if present');
+  } else if (Array.isArray(data['intimacy'])) {
+    const intimacies = data['intimacy'] as unknown[];
+    for (let i = 0; i < intimacies.length; i++) {
+      const entry = intimacies[i] as Record<string, unknown> | null | undefined;
+      if (!entry || typeof entry['id'] !== 'string' || (entry['id'] as string).trim() === '') {
+        errors.push(`Intimacy entry at index ${i} is missing a valid id`);
+      }
+      if (!isValidISODate(entry?.['date'])) {
+        errors.push(`Intimacy entry at index ${i} is missing a valid date`);
+      }
+    }
   }
 
   // data.settings being null/missing is recoverable — defaults will be used
@@ -99,6 +112,7 @@ export function validateImportShape(parsed: unknown): ImportValidationResult {
 export async function importData(parsedPayload: ExportPayload, strategy: 'overwrite' | 'merge'): Promise<void> {
   if (strategy === 'overwrite') {
     await clearAllPeriods();
+    await clearAllIntimacy();
     if (parsedPayload.data.settings && typeof parsedPayload.data.settings === 'object') {
       saveSettings(parsedPayload.data.settings);
     }
