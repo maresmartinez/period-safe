@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as periodService from '../../services/periodService.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { periodsOverlap, formatShortDate } from '../../utils/dateUtils.ts';
 import Button from '../Button.tsx';
 import type { Period, FlowLevel } from '../../types.ts';
 
@@ -70,7 +71,7 @@ function handleDateInputClick(e: React.MouseEvent<HTMLInputElement>) {
   }
 }
 
-function validate(fields: PeriodFormFields): FormErrors {
+function validate(fields: PeriodFormFields, existingPeriods: Period[], editId?: string): FormErrors {
   const errors: FormErrors = {};
   if (!fields.startDate) {
     errors.startDate = 'Start date is required.';
@@ -79,6 +80,15 @@ function validate(fields: PeriodFormFields): FormErrors {
   }
   if (fields.endDate && fields.startDate && fields.endDate < fields.startDate) {
     errors.endDate = 'End date must be on or after the start date.';
+  }
+  if (!errors.startDate) {
+    const candidate = { startDate: fields.startDate, endDate: fields.endDate || null };
+    const conflict = existingPeriods.find(
+      (p) => p.id !== editId && periodsOverlap(candidate, p)
+    );
+    if (conflict) {
+      errors.startDate = `These dates overlap with a period already logged starting ${formatShortDate(conflict.startDate)}. Please choose different dates.`;
+    }
   }
   return errors;
 }
@@ -90,11 +100,12 @@ const inputError = 'border-red-500 focus:ring-red-500';
 
 interface PeriodFormProps {
   initialData?: Period | null;
+  existingPeriods?: Period[];
   onSuccess: (period: Period) => void;
   onCancel: () => void;
 }
 
-export default function PeriodForm({ initialData = null, onSuccess, onCancel }: PeriodFormProps) {
+export default function PeriodForm({ initialData = null, existingPeriods = [], onSuccess, onCancel }: PeriodFormProps) {
   const isEditMode = Boolean(initialData?.id);
 
   const [fields, setFields] = useState<PeriodFormFields>({
@@ -133,7 +144,7 @@ export default function PeriodForm({ initialData = null, onSuccess, onCancel }: 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const validationErrors = validate(fields);
+    const validationErrors = validate(fields, existingPeriods, initialData?.id);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
