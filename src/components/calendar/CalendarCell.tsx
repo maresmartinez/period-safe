@@ -86,16 +86,16 @@ function CalendarCell({
 
       {/* Day number */}
       <div className="relative z-10 flex items-center justify-center min-h-[44px]">
+        {isIntimacyDay && (
+          <span
+            className="absolute -top-1 left-1/2 -translate-x-1/2 text-sm text-amber-600 bg-amber-100 dark:bg-amber-900 dark:text-amber-300 rounded-full w-4 h-4 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            ★
+          </span>
+        )}
         <div className={circleClass}>
           {date.getDate()}
-          {isIntimacyDay && (
-            <span
-              className="absolute top-0.5 right-0.5 text-xs text-amber-500"
-              aria-hidden="true"
-            >
-              ★
-            </span>
-          )}
         </div>
         {/* Today dot indicator (when not a period day) */}
         {isToday && !isLoggedPeriod && !isOvulation && !isFertilityWindow && !isPredicted && (
