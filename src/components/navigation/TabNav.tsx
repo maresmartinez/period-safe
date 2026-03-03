@@ -8,7 +8,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Calendar', end: true },
-  { to: '/log', label: 'Log Period', end: true },
+  { to: '/log', label: 'Log', end: true },
   { to: '/history', label: 'History', end: true },
   { to: '/export', label: 'Import / Export', end: true },
   { to: '/settings', label: 'Settings', end: true },

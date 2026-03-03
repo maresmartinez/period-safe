@@ -1,8 +1,9 @@
 import { SCHEMA_VERSION, APP_NAME } from '../config.ts';
 import { getAllPeriods, clearAllPeriods, getPeriod } from '../services/periodService.ts';
+import { getAllIntimacy, clearAllIntimacy } from '../services/intimacyService.ts';
 import { getSettings, saveSettings } from '../services/settingsService.ts';
 import { initDB } from '../services/db.ts';
-import type { ExportPayload, ImportValidationResult, Period } from '../types.ts';
+import type { ExportPayload, ImportValidationResult, Period, Intimacy } from '../types.ts';
 
 export const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -14,12 +15,13 @@ function isValidISODate(str: unknown): boolean {
 
 export async function exportData(): Promise<string> {
   const periods = await getAllPeriods();
+  const intimacy = await getAllIntimacy();
   const settings = getSettings();
   const payload: ExportPayload = {
     schemaVersion: SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     appName: APP_NAME,
-    data: { periods, settings },
+    data: { periods, intimacy, settings },
   };
   return JSON.stringify(payload, null, 2);
 }
@@ -79,6 +81,21 @@ export function validateImportShape(parsed: unknown): ImportValidationResult {
     }
   }
 
+  if (data['intimacy'] !== undefined && !Array.isArray(data['intimacy'])) {
+    errors.push('data.intimacy must be an array if present');
+  } else if (Array.isArray(data['intimacy'])) {
+    const intimacies = data['intimacy'] as unknown[];
+    for (let i = 0; i < intimacies.length; i++) {
+      const entry = intimacies[i] as Record<string, unknown> | null | undefined;
+      if (!entry || typeof entry['id'] !== 'string' || (entry['id'] as string).trim() === '') {
+        errors.push(`Intimacy entry at index ${i} is missing a valid id`);
+      }
+      if (!isValidISODate(entry?.['date'])) {
+        errors.push(`Intimacy entry at index ${i} is missing a valid date`);
+      }
+    }
+  }
+
   // data.settings being null/missing is recoverable — defaults will be used
   // Only flag it if it's present but clearly wrong type
   if (
@@ -95,6 +112,7 @@ export function validateImportShape(parsed: unknown): ImportValidationResult {
 export async function importData(parsedPayload: ExportPayload, strategy: 'overwrite' | 'merge'): Promise<void> {
   if (strategy === 'overwrite') {
     await clearAllPeriods();
+    await clearAllIntimacy();
     if (parsedPayload.data.settings && typeof parsedPayload.data.settings === 'object') {
       saveSettings(parsedPayload.data.settings);
     }
@@ -121,5 +139,21 @@ export async function importData(parsedPayload: ExportPayload, strategy: 'overwr
       schemaVersion: SCHEMA_VERSION as 1,
     };
     await db.put('periods', record);
+  }
+
+  const intimacyRecords = parsedPayload.data.intimacy ?? [];
+  for (const intimacy of intimacyRecords) {
+    if (strategy === 'merge') {
+      const existing = await db.get('intimacy', intimacy.id);
+      if (existing) continue;
+    }
+
+    const record: Intimacy = {
+      ...intimacy,
+      protection: intimacy.protection ?? null,
+      notes: intimacy.notes ?? null,
+      schemaVersion: 1,
+    };
+    await db.put('intimacy', record);
   }
 }

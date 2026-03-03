@@ -5,6 +5,17 @@ import CalendarGrid from './CalendarGrid.tsx';
 import { ToastProvider } from '../../stores/ToastContext.tsx';
 import type { Period, Prediction } from '../../types.ts';
 
+vi.mock('../../hooks/useIntimacyData.ts', () => ({
+  default: () => ({
+    intimacy: [],
+    loading: false,
+    error: null,
+    createIntimacy: vi.fn(),
+    updateIntimacy: vi.fn(),
+    deleteIntimacy: vi.fn(),
+  }),
+}));
+
 // Controlled wrapper so tests can pass initialMonth/initialYear
 // without CalendarGrid owning its own navigation state.
 interface ControlledCalendarGridProps {
@@ -27,13 +38,19 @@ function ControlledCalendarGrid({
 
   function goToPrev() {
     setMonth((m) => {
-      if (m === 0) { setYear((y) => y - 1); return 11; }
+      if (m === 0) {
+        setYear((y) => y - 1);
+        return 11;
+      }
       return m - 1;
     });
   }
   function goToNext() {
     setMonth((m) => {
-      if (m === 11) { setYear((y) => y + 1); return 0; }
+      if (m === 11) {
+        setYear((y) => y + 1);
+        return 0;
+      }
       return m + 1;
     });
   }
@@ -155,7 +172,9 @@ describe('CalendarGrid', () => {
     };
     const { onPeriodClick } = renderCalendar({ periods: [period] });
 
-    const cell = screen.getByRole('gridcell', { name: /january 15, 2024.*has period/i });
+    const cell = screen.getByRole('gridcell', {
+      name: /january 15, 2024.*has period/i,
+    });
     fireEvent.click(cell);
 
     expect(onPeriodClick).toHaveBeenCalledOnce();
@@ -175,10 +194,14 @@ describe('CalendarGrid', () => {
     };
     renderCalendar({ periods: [period] });
 
-    const cell = screen.getByRole('gridcell', { name: /january 20, 2024.*has period/i });
+    const cell = screen.getByRole('gridcell', {
+      name: /january 20, 2024.*has period/i,
+    });
     fireEvent.click(cell);
 
-    expect(screen.getByRole('dialog', { name: /period details/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: /period details/i })
+    ).toBeInTheDocument();
   });
 
   // -----------------------------------------------------------------------
@@ -196,7 +219,9 @@ describe('CalendarGrid', () => {
     fireEvent.keyDown(grid, { key: 'ArrowRight' });
 
     // Calendar should now show February 2024
-    expect(screen.getByRole('grid', { name: /february 2024/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('grid', { name: /february 2024/i })
+    ).toBeInTheDocument();
   });
 
   it('navigates to previous month when ArrowLeft is pressed on the first day', () => {
@@ -208,7 +233,9 @@ describe('CalendarGrid', () => {
     const grid = screen.getByRole('grid');
     fireEvent.keyDown(grid, { key: 'ArrowLeft' });
 
-    expect(screen.getByRole('grid', { name: /january 2024/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('grid', { name: /january 2024/i })
+    ).toBeInTheDocument();
   });
 
   // -----------------------------------------------------------------------
@@ -253,7 +280,9 @@ describe('CalendarGrid', () => {
     renderCalendar({ predictions });
 
     expect(
-      screen.getByRole('gridcell', { name: /january 25, 2024.*predicted period/i })
+      screen.getByRole('gridcell', {
+        name: /january 25, 2024.*predicted period/i,
+      })
     ).toBeInTheDocument();
   });
 
@@ -269,7 +298,9 @@ describe('CalendarGrid', () => {
     const grid = screen.getByRole('grid');
     fireEvent.keyDown(grid, { key: 'PageUp' });
 
-    expect(screen.getByRole('grid', { name: /march 2024/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('grid', { name: /march 2024/i })
+    ).toBeInTheDocument();
   });
 
   it('navigates to next month on PageDown', () => {
@@ -300,13 +331,17 @@ describe('CalendarGrid', () => {
     renderCalendar({ periods: [period] });
 
     // Click the period cell to move focus there
-    const cell = screen.getByRole('gridcell', { name: /january 8, 2024.*has period/i });
+    const cell = screen.getByRole('gridcell', {
+      name: /january 8, 2024.*has period/i,
+    });
     fireEvent.click(cell);
 
     const grid = screen.getByRole('grid');
     fireEvent.keyDown(grid, { key: 'Enter' });
 
-    expect(screen.getByRole('dialog', { name: /period details/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: /period details/i })
+    ).toBeInTheDocument();
   });
 
   // -----------------------------------------------------------------------
@@ -325,7 +360,9 @@ describe('CalendarGrid', () => {
     };
     renderCalendar({ periods: [period] });
 
-    fireEvent.click(screen.getByRole('gridcell', { name: /january 18, 2024.*has period/i }));
+    fireEvent.click(
+      screen.getByRole('gridcell', { name: /january 18, 2024.*has period/i })
+    );
 
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByText(/january 18, 2024/i)).toBeInTheDocument();

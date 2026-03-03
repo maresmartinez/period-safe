@@ -233,3 +233,4 @@ describe('PeriodForm', () => {
 2. **No PII logging** — console logs must never contain dates, symptoms, or user data
 3. **48px minimum touch targets** on mobile
 4. **Bundle size < 100KB gzipped** — run `npm run check-size` before deploying
+5. **"Clear all data" must clear ALL data** — when adding new data types (periods, intimacy, symptoms, medications, etc.), you MUST update `ImportExportPage.handleClearConfirm()` to call the corresponding `clearAll*()` function. This button should delete everything.

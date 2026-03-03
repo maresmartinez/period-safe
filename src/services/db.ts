@@ -15,6 +15,10 @@ export function initDB(): Promise<IDBPDatabase> {
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings', { keyPath: 'key' });
         }
+        if (!db.objectStoreNames.contains('intimacy')) {
+          const intimacyStore = db.createObjectStore('intimacy', { keyPath: 'id' });
+          intimacyStore.createIndex('date', 'date');
+        }
       },
     });
   }

@@ -6,6 +6,7 @@ import {
   MAX_IMPORT_FILE_SIZE,
 } from './dataTransfer.ts';
 import { getAllPeriods, createPeriod, clearAllPeriods } from '../services/periodService.ts';
+import { createIntimacy, getAllIntimacy, clearAllIntimacy } from '../services/intimacyService.ts';
 import { getSettings, saveSettings, resetSettings } from '../services/settingsService.ts';
 import { resetDB } from '../services/db.ts';
 import type { ExportPayload } from '../types.ts';
@@ -14,6 +15,7 @@ beforeEach(async () => {
   resetDB();
   resetSettings();
   await clearAllPeriods();
+  await clearAllIntimacy();
 });
 
 // ---------------------------------------------------------------------------
@@ -124,6 +126,48 @@ describe('validateImportShape', () => {
     const result = validateImportShape(payload);
     expect(result.valid).toBe(false);
   });
+
+  it('returns invalid when data.intimacy is not an array', () => {
+    const payload = {
+      schemaVersion: 1,
+      data: {
+        periods: [],
+        intimacy: 'not-an-array',
+        settings: null,
+      },
+    };
+    const result = validateImportShape(payload);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('intimacy must be an array'))).toBe(true);
+  });
+
+  it('returns invalid when intimacy entry is missing date', () => {
+    const payload = {
+      schemaVersion: 1,
+      data: {
+        periods: [],
+        intimacy: [{ id: 'test-id' }],
+        settings: null,
+      },
+    };
+    const result = validateImportShape(payload);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('missing a valid date'))).toBe(true);
+  });
+
+  it('returns invalid when intimacy entry is missing id', () => {
+    const payload = {
+      schemaVersion: 1,
+      data: {
+        periods: [],
+        intimacy: [{ date: '2024-03-15' }],
+        settings: null,
+      },
+    };
+    const result = validateImportShape(payload);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('missing a valid id'))).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -155,6 +199,17 @@ describe('exportData', () => {
     const parsed = JSON.parse(json) as ExportPayload;
     expect(parsed.data.settings!.theme).toBe('dark');
     expect(parsed.data.settings!.cycleLengthAverage).toBe(30);
+  });
+
+  it('includes intimacy entries in export', async () => {
+    await createIntimacy({ date: '2024-03-15', protection: 'protected' });
+
+    const json = await exportData();
+    const parsed = JSON.parse(json);
+
+    expect(parsed.data.intimacy).toHaveLength(1);
+    expect(parsed.data.intimacy[0].date).toBe('2024-03-15');
+    expect(parsed.data.intimacy[0].protection).toBe('protected');
   });
 });
 
@@ -218,6 +273,28 @@ describe('importData (overwrite)', () => {
 
     const periods = await getAllPeriods();
     expect(periods[0].id).toBe('preserved-id');
+  });
+
+  it('clears existing intimacy and imports all from payload', async () => {
+    await createIntimacy({ date: '2020-01-01' });
+
+    const payload = {
+      schemaVersion: 1,
+      data: {
+        periods: [],
+        intimacy: [
+          { id: 'import-1', date: '2025-03-15', protection: 'protected', notes: null, schemaVersion: 1 },
+        ],
+        settings: null,
+      },
+    } as unknown as ExportPayload;
+
+    await importData(payload, 'overwrite');
+
+    const all = await getAllIntimacy();
+    expect(all).toHaveLength(1);
+    expect(all[0].id).toBe('import-1');
+    expect(all[0].date).toBe('2025-03-15');
   });
 });
 
@@ -284,6 +361,49 @@ describe('importData (merge)', () => {
 
     const settings = getSettings();
     expect(settings.cycleLengthAverage).toBe(28);
+  });
+
+  it('merges intimacy entries (skip duplicates)', async () => {
+    await createIntimacy({ date: '2024-03-10' });
+
+    const payload = {
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      appName: 'PeriodSafe',
+      data: {
+        periods: [],
+        intimacy: [
+          { id: 'test-id', date: '2024-03-15', protection: null, notes: null, schemaVersion: 1 },
+        ],
+        settings: null,
+      },
+    } as unknown as ExportPayload;
+
+    await importData(payload, 'merge');
+
+    const all = await getAllIntimacy();
+    expect(all).toHaveLength(2);
+  });
+
+  it('skips intimacy entries whose id already exists', async () => {
+    const existing = await createIntimacy({ date: '2024-03-10' });
+
+    const payload = {
+      schemaVersion: 1,
+      data: {
+        periods: [],
+        intimacy: [
+          { id: existing.id, date: '2024-03-15', protection: null, notes: null, schemaVersion: 1 },
+        ],
+        settings: null,
+      },
+    } as unknown as ExportPayload;
+
+    await importData(payload, 'merge');
+
+    const all = await getAllIntimacy();
+    expect(all).toHaveLength(1);
+    expect(all[0].date).toBe('2024-03-10');
   });
 });
 

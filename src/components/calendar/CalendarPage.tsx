@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import usePeriodData from '../../hooks/usePeriodData.ts';
 import usePeriodPrediction from '../../hooks/usePeriodPrediction.ts';
 import useCalendarViewState from '../../hooks/useCalendarViewState.ts';
+import useIntimacyData from '../../hooks/useIntimacyData.ts';
 import CalendarGrid from './CalendarGrid.tsx';
 import CalendarToolbar from './CalendarToolbar.tsx';
 import WeekView from './WeekView.tsx';
@@ -19,6 +20,7 @@ const MONTH_NAMES = [
 
 export default function CalendarPage() {
   const { periods, loading, error, deletePeriod } = usePeriodData();
+  const { deleteIntimacy } = useIntimacyData();
   const navigate = useNavigate();
   const {
     predictions,
@@ -150,6 +152,8 @@ export default function CalendarPage() {
           onGoToNextMonth={handleGoToNextMonth}
           onEditPeriod={(period) => navigate('/log', { state: { period } })}
           onDeletePeriod={deletePeriod}
+          onEditIntimacy={(intimacy) => navigate('/log', { state: { intimacy } })}
+          onDeleteIntimacy={deleteIntimacy}
         />
       )}
 
@@ -197,6 +201,10 @@ export default function CalendarPage() {
             aria-hidden="true"
           />
           Predicted fertility window
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="text-amber-500 text-sm">★</span>
+          Intimate day
         </span>
       </div>
 

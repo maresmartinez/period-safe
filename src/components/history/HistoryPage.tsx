@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usePeriodData from '../../hooks/usePeriodData.ts';
+import useIntimacyData from '../../hooks/useIntimacyData.ts';
 import PeriodDetailModal from '../calendar/PeriodDetailModal.tsx';
+import IntimacyDetailModal from '../calendar/IntimacyDetailModal.tsx';
 import Button from '../Button.tsx';
 import LoadingSpinner from '../LoadingSpinner.tsx';
 import { formatDisplayDate } from '../../utils/dateUtils.ts';
-import type { Period } from '../../types.ts';
+import type { Period, Intimacy } from '../../types.ts';
 
 const FLOW_LABELS: Record<string, string> = { light: 'Light', medium: 'Medium', heavy: 'Heavy' };
 const MOOD_LABELS: Record<number, { face: string; label: string }> = {
@@ -15,6 +17,10 @@ const MOOD_LABELS: Record<number, { face: string; label: string }> = {
   4: { face: '🙂', label: 'Good' },
   5: { face: '😄', label: 'Great' },
 };
+
+type HistoryEntry =
+  | { type: 'period'; date: string; data: Period }
+  | { type: 'intimacy'; date: string; data: Intimacy };
 
 function computeDuration(startDate: string, endDate: string | null): string {
   if (!endDate) return 'Ongoing';
@@ -28,11 +34,34 @@ function computeDuration(startDate: string, endDate: string | null): string {
 }
 
 export default function HistoryPage() {
-  const { periods, loading, error, deletePeriod } = usePeriodData();
+  const { periods, loading: periodsLoading, error: periodsError, deletePeriod } = usePeriodData();
+  const { intimacy, loading: intimacyLoading, error: intimacyError, deleteIntimacy } = useIntimacyData();
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
+  const [selectedIntimacy, setSelectedIntimacy] = useState<Intimacy | null>(null);
+  const [filter, setFilter] = useState<'all' | 'period' | 'intimacy'>('all');
 
-  if (loading) {
+  const allEntries = useMemo((): HistoryEntry[] => {
+    const periodEntries: HistoryEntry[] = periods.map((p) => ({
+      type: 'period' as const,
+      date: p.startDate,
+      data: p,
+    }));
+    const intimacyEntries: HistoryEntry[] = intimacy.map((i) => ({
+      type: 'intimacy' as const,
+      date: i.date,
+      data: i,
+    }));
+
+    const combined = [...periodEntries, ...intimacyEntries];
+    combined.sort((a, b) => b.date.localeCompare(a.date));
+
+    if (filter === 'period') return combined.filter((e) => e.type === 'period');
+    if (filter === 'intimacy') return combined.filter((e) => e.type === 'intimacy');
+    return combined;
+  }, [periods, intimacy, filter]);
+
+  if (periodsLoading || intimacyLoading) {
     return (
       <div className="flex justify-center py-12">
         <LoadingSpinner />
@@ -40,90 +69,163 @@ export default function HistoryPage() {
     );
   }
 
-  if (error) {
+  if (periodsError || intimacyError) {
+    const errorMsg = periodsError
+      ? (periodsError as Error).message
+      : (intimacyError as Error).message;
     return (
       <p role="alert" className="text-sm text-red-600 dark:text-red-400 px-4 py-8 text-center">
-        Failed to load periods: {(error as Error).message}
+        Failed to load data: {errorMsg}
       </p>
     );
   }
 
-  const sorted = [...periods].sort((a, b) => b.startDate.localeCompare(a.startDate));
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-6">
-        Period History
+        History
       </h1>
 
-      {sorted.length === 0 ? (
+      <div className="mb-4" role="tablist" aria-label="Filter entries">
+        <div className="flex gap-2">
+          {(['all', 'period', 'intimacy'] as const).map((f) => (
+            <button
+              key={f}
+              type="button"
+              role="tab"
+              aria-selected={filter === f}
+              onClick={() => setFilter(f)}
+              className={[
+                'min-h-[40px] px-4 rounded-lg border font-medium text-sm transition-colors',
+                filter === f
+                  ? 'bg-neutral-900 dark:bg-neutral-100 border-neutral-900 dark:border-neutral-100 text-white dark:text-neutral-900'
+                  : 'border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400',
+              ].join(' ')}
+            >
+              {f === 'all' ? 'All' : f === 'period' ? 'Periods' : 'Intimacy'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {allEntries.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-neutral-500 dark:text-neutral-400 mb-4">No periods logged yet.</p>
+          <p className="text-neutral-500 dark:text-neutral-400 mb-4">
+            {filter === 'all'
+              ? 'No entries logged yet.'
+              : filter === 'period'
+                ? 'No periods logged yet.'
+                : 'No intimacy entries logged yet.'}
+          </p>
           <Link
             to="/log"
             className="text-rose-500 dark:text-rose-400 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded"
           >
-            Log your first period
+            Log your first entry
           </Link>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
           <table
-            aria-label="Period history"
+            aria-label="History entries"
             className="w-full text-sm text-left text-neutral-700 dark:text-neutral-300"
           >
             <thead className="bg-neutral-50 dark:bg-neutral-800 text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               <tr>
-                <th scope="col" className="px-4 py-3">Start Date</th>
-                <th scope="col" className="px-4 py-3">End Date</th>
+                <th scope="col" className="px-4 py-3">Type</th>
+                <th scope="col" className="px-4 py-3">Date</th>
+                <th scope="col" className="px-4 py-3 hidden md:table-cell">End Date</th>
                 <th scope="col" className="px-4 py-3 hidden md:table-cell">Duration</th>
-                <th scope="col" className="px-4 py-3">Flow</th>
-                <th scope="col" className="px-4 py-3 hidden md:table-cell">Mood</th>
+                <th scope="col" className="px-4 py-3">Details</th>
                 <th scope="col" className="px-4 py-3">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-              {sorted.map((period) => {
-                const mood = period.mood !== null ? MOOD_LABELS[period.mood] : null;
-                return (
-                  <tr
-                    key={period.id}
-                    className="bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                  >
-                    <td className="px-4 py-3 font-medium text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-                      {formatDisplayDate(period.startDate)}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {period.endDate ? formatDisplayDate(period.endDate) : '—'}
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">
-                      {computeDuration(period.startDate, period.endDate)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {period.flow ? FLOW_LABELS[period.flow] ?? period.flow : '—'}
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      {mood ? (
-                        <span>
-                          <span aria-hidden="true">{mood.face}</span>{' '}
-                          {mood.label}
+              {allEntries.map((entry) => {
+                if (entry.type === 'period') {
+                  const period = entry.data;
+                  const mood = period.mood !== null ? MOOD_LABELS[period.mood] : null;
+                  return (
+                    <tr
+                      key={period.id}
+                      className="bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                    >
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300">
+                          Period
                         </span>
-                      ) : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedPeriod(period)}
-                        aria-label={`View details for period starting ${formatDisplayDate(period.startDate)}`}
-                      >
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                );
+                      </td>
+                      <td className="px-4 py-3 font-medium text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
+                        {formatDisplayDate(period.startDate)}
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">
+                        {period.endDate ? formatDisplayDate(period.endDate) : '—'}
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">
+                        {computeDuration(period.startDate, period.endDate)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="flex items-center gap-1">
+                          {period.flow ? FLOW_LABELS[period.flow] ?? period.flow : '—'}
+                          {mood && (
+                            <>
+                              <span aria-hidden="true">{mood.face}</span>
+                              <span className="sr-only">{mood.label}</span>
+                            </>
+                          )}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedPeriod(period)}
+                          aria-label={`View details for period starting ${formatDisplayDate(period.startDate)}`}
+                        >
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                } else {
+                  const intim = entry.data;
+                  return (
+                    <tr
+                      key={intim.id}
+                      className="bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                    >
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                          Intimacy
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
+                        {formatDisplayDate(intim.date)}
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">—</td>
+                      <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">—</td>
+                      <td className="px-4 py-3">
+                        {intim.protection === 'protected'
+                          ? 'Protected'
+                          : intim.protection === 'unprotected'
+                            ? 'Unprotected'
+                            : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedIntimacy(intim)}
+                          aria-label={`View details for intimacy on ${formatDisplayDate(intim.date)}`}
+                        >
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                }
               })}
             </tbody>
           </table>
@@ -140,6 +242,19 @@ export default function HistoryPage() {
         onDelete={(id) => {
           deletePeriod(id);
           setSelectedPeriod(null);
+        }}
+      />
+
+      <IntimacyDetailModal
+        intimacy={selectedIntimacy}
+        onClose={() => setSelectedIntimacy(null)}
+        onEdit={(i) => {
+          setSelectedIntimacy(null);
+          navigate('/log', { state: { intimacy: i } });
+        }}
+        onDelete={(id) => {
+          deleteIntimacy(id);
+          setSelectedIntimacy(null);
         }}
       />
     </div>

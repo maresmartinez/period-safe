@@ -450,6 +450,9 @@ Export filename: `periodsafe-export-YYYY-MM-DD.json`
 - **overwrite** — calls `clearAllPeriods()` + `saveSettings(file.settings)`, then inserts all periods with preserved IDs
 - **merge** — checks `getPeriod(period.id)` before inserting; skips duplicates; does NOT apply file settings
 
+**Clear all data requirement:**
+When adding new data types (intimacy, symptoms, medications, etc.), you MUST update `ImportExportPage.handleClearConfirm()` to call the corresponding `clearAll*()` function. The "Clear all data" button should delete EVERYTHING — periods, intimacy entries, settings, and any future data types.
+
 **ID preservation note:** `createPeriod` always generates new UUIDs, so import uses `db.put('periods', record)` directly via `initDB()` to preserve original IDs from the export file. This is critical for merge-mode deduplication.
 
 **UI structure:** Privacy banner → Export card → Import card (hidden `<input type="file">`) → Danger zone (clear all). Overwrite/merge choice presented in a Modal after successful validation.

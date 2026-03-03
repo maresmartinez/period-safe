@@ -11,6 +11,7 @@ interface CalendarCellProps {
   isPredicted: boolean;
   isOvulation?: boolean;
   isFertilityWindow?: boolean;
+  isIntimacyDay?: boolean;
   isFocused: boolean;
   ariaLabel: string;
 }
@@ -24,6 +25,7 @@ function CalendarCell({
   isPredicted,
   isOvulation = false,
   isFertilityWindow = false,
+  isIntimacyDay = false,
   isFocused,
   ariaLabel,
 }: CalendarCellProps) {
@@ -84,6 +86,14 @@ function CalendarCell({
 
       {/* Day number */}
       <div className="relative z-10 flex items-center justify-center min-h-[44px]">
+        {isIntimacyDay && (
+          <span
+            className="absolute -top-1 left-1/2 -translate-x-1/2 text-sm text-amber-600 bg-amber-100 dark:bg-amber-900 dark:text-amber-300 rounded-full w-4 h-4 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            ★
+          </span>
+        )}
         <div className={circleClass}>
           {date.getDate()}
         </div>
