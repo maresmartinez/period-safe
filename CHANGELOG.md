@@ -24,6 +24,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - Align legend swatches and year view cells with cell border styling
 
+- clear intimacy data in clear all data button
+
 
 ## Documentation
 
@@ -50,12 +52,52 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - Change ovulation and fertility prediction colors to purple
 
+- add Intimacy type and update ExportPayload
+
+- bump DB_VERSION to 2 for intimacy store
+
+- add intimacy object store to IndexedDB schema
+
+- implement intimacyService with CRUD operations
+
+- implement useIntimacyData hook
+
+- add type toggle and intimacy fields to LogEntryForm
+
+- add intimacy star indicator to CalendarCell
+
+- pass intimacy data to CalendarCell
+
+- add intimacy star to calendar legend
+
+- create IntimacyDetailModal component
+
+- create DualEntryModal for days with both entries
+
+- handle dual-entry clicks in calendar
+
+- add filter tabs and combined view to HistoryPage
+
 
 ## Performance
 
 - Filter periods to visible window before building date map
 
 - Use event delegation for calendar cell clicks
+
+
+## Refactoring
+
+- rename PeriodForm to LogEntryForm
+
+
+## Testing
+
+- add intimacyService test suite
+
+- add useIntimacyData hook test suite
+
+- add intimacy export/import tests
 
 
 ## Bug
