@@ -12,6 +12,7 @@ import {
   MAX_IMPORT_FILE_SIZE,
 } from '../../utils/dataTransfer.ts';
 import { clearAllPeriods } from '../../services/periodService.ts';
+import { clearAllIntimacy } from '../../services/intimacyService.ts';
 import { resetSettings } from '../../services/settingsService.ts';
 import type { ExportPayload } from '../../types.ts';
 
@@ -122,12 +123,15 @@ export default function ImportExportPage() {
 
   // -------------------------------------------------------------------------
   // Clear all data
+  // IMPORTANT: When adding new data types (e.g., symptoms, medications), 
+  // you MUST add a clearAll*() call here. This button should clear EVERYTHING.
   // -------------------------------------------------------------------------
   async function handleClearConfirm() {
     setClearModalOpen(false);
     setClearing(true);
     try {
       await clearAllPeriods();
+      await clearAllIntimacy();
       resetSettings();
       showToast({ type: 'success', message: 'All data cleared.' });
     } catch {
@@ -205,8 +209,8 @@ export default function ImportExportPage() {
           Danger zone
         </h2>
         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-          Permanently delete all logged periods and reset settings to defaults. Export a backup
-          first if you want to keep your data.
+          Permanently delete all your data and reset settings to defaults. Export a backup first if
+          you want to keep anything.
         </p>
         <Button
           variant="danger"
@@ -275,8 +279,8 @@ export default function ImportExportPage() {
         size="sm"
       >
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
-          This will permanently delete all your logged periods and reset your settings. This cannot
-          be undone. Export your data first if you want a backup.
+          This will permanently delete all your data and reset your settings. This cannot be undone.
+          Export your data first if you want a backup.
         </p>
         <div className="mt-6 flex gap-3 justify-end">
           <Button variant="ghost" size="sm" onClick={() => setClearModalOpen(false)}>
