@@ -29,13 +29,14 @@ const FLOW_OPTIONS: FlowOption[] = [
   { value: 'heavy', label: 'Heavy' },
 ];
 
-const MOOD_CONFIG: Record<1 | 2 | 3 | 4 | 5, { face: string; label: string }> = {
-  1: { face: '😣', label: 'Horrible' },
-  2: { face: '😟', label: 'Bad' },
-  3: { face: '😐', label: 'Okay' },
-  4: { face: '🙂', label: 'Good' },
-  5: { face: '😄', label: 'Great' },
-};
+const MOOD_CONFIG: Record<1 | 2 | 3 | 4 | 5, { face: string; label: string }> =
+  {
+    1: { face: '😣', label: 'Horrible' },
+    2: { face: '😟', label: 'Bad' },
+    3: { face: '😐', label: 'Okay' },
+    4: { face: '🙂', label: 'Good' },
+    5: { face: '😄', label: 'Great' },
+  };
 
 interface PeriodFormFields {
   startDate: string;
@@ -65,7 +66,9 @@ function getTodayISO(): string {
 function handleDateInputClick(e: React.MouseEvent<HTMLInputElement>) {
   const isTouchDevice = navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
-    const input = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+    const input = e.currentTarget as HTMLInputElement & {
+      showPicker?: () => void;
+    };
     if (typeof input.showPicker === 'function') {
       e.preventDefault();
       input.showPicker();
@@ -73,7 +76,11 @@ function handleDateInputClick(e: React.MouseEvent<HTMLInputElement>) {
   }
 }
 
-function validate(fields: PeriodFormFields, existingPeriods: Period[], editId?: string): FormErrors {
+function validate(
+  fields: PeriodFormFields,
+  existingPeriods: Period[],
+  editId?: string
+): FormErrors {
   const errors: FormErrors = {};
   if (!fields.startDate) {
     errors.startDate = 'Start date is required.';
@@ -84,7 +91,10 @@ function validate(fields: PeriodFormFields, existingPeriods: Period[], editId?: 
     errors.endDate = 'End date must be on or after the start date.';
   }
   if (!errors.startDate) {
-    const candidate = { startDate: fields.startDate, endDate: fields.endDate || null };
+    const candidate = {
+      startDate: fields.startDate,
+      endDate: fields.endDate || null,
+    };
     const conflict = existingPeriods.find(
       (p) => p.id !== editId && periodsOverlap(candidate, p)
     );
@@ -107,12 +117,15 @@ function validateIntimacy(fields: IntimacyFormFields): { date?: string } {
 
 const inputBase =
   'w-full rounded-lg border px-3 py-2 text-neutral-900 dark:text-neutral-100 dark:bg-neutral-800 focus:outline-none focus:ring-2 min-h-[48px]';
-const inputNormal = 'border-neutral-300 dark:border-neutral-600 focus:ring-rose-500';
-const inputAmber = 'border-neutral-300 dark:border-neutral-600 focus:ring-amber-500';
+const inputNormal =
+  'border-neutral-300 dark:border-neutral-600 focus:ring-rose-500';
+const inputAmber =
+  'border-neutral-300 dark:border-neutral-600 focus:ring-amber-500';
 const inputError = 'border-red-500 focus:ring-red-500';
 
 interface LogEntryFormProps {
   initialData?: Period | null;
+  initialIntimacyData?: Intimacy | null;
   existingPeriods?: Period[];
   onSuccess: (period: Period | Intimacy) => void;
   onCancel: () => void;
@@ -121,12 +134,13 @@ interface LogEntryFormProps {
 
 export default function LogEntryForm({
   initialData = null,
+  initialIntimacyData = null,
   existingPeriods = [],
   onSuccess,
   onCancel,
   initialMode = 'period',
 }: LogEntryFormProps) {
-  const isEditMode = Boolean(initialData?.id);
+  const hasExistingData = Boolean(initialData?.id || initialIntimacyData?.id);
 
   const [mode, setMode] = useState<'period' | 'intimacy'>(initialMode);
 
@@ -140,16 +154,19 @@ export default function LogEntryForm({
   });
 
   const [intimacyFields, setIntimacyFields] = useState<IntimacyFormFields>({
-    date: '',
-    protection: '',
-    notes: '',
+    date: initialIntimacyData?.date ?? '',
+    protection: initialIntimacyData?.protection ?? '',
+    notes: initialIntimacyData?.notes ?? '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
-  function setField<K extends keyof PeriodFormFields>(name: K, value: PeriodFormFields[K]) {
+  function setField<K extends keyof PeriodFormFields>(
+    name: K,
+    value: PeriodFormFields[K]
+  ) {
     setFields((prev) => ({ ...prev, [name]: value }));
     if (name in errors) {
       setErrors((prev) => {
@@ -160,7 +177,10 @@ export default function LogEntryForm({
     }
   }
 
-  function setIntimacyField<K extends keyof IntimacyFormFields>(name: K, value: IntimacyFormFields[K]) {
+  function setIntimacyField<K extends keyof IntimacyFormFields>(
+    name: K,
+    value: IntimacyFormFields[K]
+  ) {
     setIntimacyFields((prev) => ({ ...prev, [name]: value }));
     if (name in errors) {
       setErrors((prev) => {
@@ -198,11 +218,21 @@ export default function LogEntryForm({
 
       try {
         setLoading(true);
-        const saved = await intimacyService.createIntimacy(data);
-        showToast({ type: 'success', message: 'Intimacy logged successfully.' });
+        const saved = initialIntimacyData?.id
+          ? await intimacyService.updateIntimacy(initialIntimacyData.id, data)
+          : await intimacyService.createIntimacy(data);
+        showToast({
+          type: 'success',
+          message: initialIntimacyData?.id
+            ? 'Intimacy updated.'
+            : 'Intimacy logged successfully.',
+        });
         onSuccess(saved);
       } catch {
-        showToast({ type: 'error', message: 'Failed to save. Please try again.' });
+        showToast({
+          type: 'error',
+          message: 'Failed to save. Please try again.',
+        });
       } finally {
         setLoading(false);
       }
@@ -226,13 +256,21 @@ export default function LogEntryForm({
 
     try {
       setLoading(true);
-      const saved = isEditMode
-        ? await periodService.updatePeriod(initialData!.id, data)
+      const saved = initialData?.id
+        ? await periodService.updatePeriod(initialData.id, data)
         : await periodService.createPeriod(data);
-      showToast({ type: 'success', message: 'Period logged successfully.' });
+      showToast({
+        type: 'success',
+        message: initialData?.id
+          ? 'Period updated.'
+          : 'Period logged successfully.',
+      });
       onSuccess(saved);
     } catch {
-      showToast({ type: 'error', message: 'Failed to save. Please try again.' });
+      showToast({
+        type: 'error',
+        message: 'Failed to save. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -240,43 +278,56 @@ export default function LogEntryForm({
 
   const today = getTodayISO();
 
-  const submitButtonText = mode === 'intimacy'
-    ? 'Log intimacy'
-    : (isEditMode ? 'Save changes' : 'Log period');
+  const submitButtonText =
+    mode === 'intimacy'
+      ? initialIntimacyData?.id
+        ? 'Save changes'
+        : 'Log intimacy'
+      : initialData?.id
+        ? 'Save changes'
+        : 'Log period';
 
   return (
-    <form onSubmit={handleSubmit} noValidate aria-label={mode === 'intimacy' ? 'Log intimacy' : 'Log period'}>
-      {/* Type Toggle */}
-      <div role="tablist" className="flex mb-6 border-b border-neutral-200 dark:border-neutral-700">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'period'}
-          onClick={() => setMode('period')}
-          className={[
-            'flex-1 min-h-[48px] text-sm font-medium transition-colors border-b-2 -mb-px',
-            mode === 'period'
-              ? 'border-rose-500 text-rose-600 dark:text-rose-400'
-              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
-          ].join(' ')}
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      aria-label={mode === 'intimacy' ? 'Log intimacy' : 'Log period'}
+    >
+      {!hasExistingData && (
+        <div
+          role="tablist"
+          className="flex mb-6 border-b border-neutral-200 dark:border-neutral-700"
         >
-          Period
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'intimacy'}
-          onClick={() => setMode('intimacy')}
-          className={[
-            'flex-1 min-h-[48px] text-sm font-medium transition-colors border-b-2 -mb-px',
-            mode === 'intimacy'
-              ? 'border-amber-500 text-amber-600 dark:text-amber-400'
-              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
-          ].join(' ')}
-        >
-          Intimacy
-        </button>
-      </div>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'period'}
+            onClick={() => setMode('period')}
+            className={[
+              'flex-1 min-h-[48px] text-sm font-medium transition-colors border-b-2 -mb-px',
+              mode === 'period'
+                ? 'border-rose-500 text-rose-600 dark:text-rose-400'
+                : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
+            ].join(' ')}
+          >
+            Period
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'intimacy'}
+            onClick={() => setMode('intimacy')}
+            className={[
+              'flex-1 min-h-[48px] text-sm font-medium transition-colors border-b-2 -mb-px',
+              mode === 'intimacy'
+                ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
+            ].join(' ')}
+          >
+            Intimacy
+          </button>
+        </div>
+      )}
 
       {mode === 'intimacy' ? (
         <>
@@ -304,7 +355,11 @@ export default function LogEntryForm({
               className={`${inputBase} ${errors.date ? inputError : inputAmber}`}
             />
             {errors.date && (
-              <p id="intimacy-date-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p
+                id="intimacy-date-error"
+                role="alert"
+                className="mt-1 text-sm text-red-600 dark:text-red-400"
+              >
                 {errors.date}
               </p>
             )}
@@ -325,7 +380,9 @@ export default function LogEntryForm({
                   onChange={() => setIntimacyField('protection', 'protected')}
                   className="w-4 h-4 accent-amber-500"
                 />
-                <span className="text-sm text-neutral-700 dark:text-neutral-300">Protected</span>
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                  Protected
+                </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer min-h-[48px]">
                 <input
@@ -336,7 +393,9 @@ export default function LogEntryForm({
                   onChange={() => setIntimacyField('protection', 'unprotected')}
                   className="w-4 h-4 accent-amber-500"
                 />
-                <span className="text-sm text-neutral-700 dark:text-neutral-300">Unprotected</span>
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                  Unprotected
+                </span>
               </label>
             </div>
           </fieldset>
@@ -359,7 +418,10 @@ export default function LogEntryForm({
               placeholder="Optional notes..."
               className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-100 dark:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
             />
-            <p className="mt-1 text-xs text-neutral-400 text-right" aria-live="polite">
+            <p
+              className="mt-1 text-xs text-neutral-400 text-right"
+              aria-live="polite"
+            >
               {intimacyFields.notes.length}/500
             </p>
           </div>
@@ -386,11 +448,17 @@ export default function LogEntryForm({
               onClick={handleDateInputClick}
               onChange={(e) => setField('startDate', e.target.value)}
               aria-required="true"
-              aria-describedby={errors.startDate ? 'startDate-error' : undefined}
+              aria-describedby={
+                errors.startDate ? 'startDate-error' : undefined
+              }
               className={`${inputBase} ${errors.startDate ? inputError : inputNormal}`}
             />
             {errors.startDate && (
-              <p id="startDate-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p
+                id="startDate-error"
+                role="alert"
+                className="mt-1 text-sm text-red-600 dark:text-red-400"
+              >
                 {errors.startDate}
               </p>
             )}
@@ -417,7 +485,11 @@ export default function LogEntryForm({
               className={`${inputBase} ${errors.endDate ? inputError : inputNormal}`}
             />
             {errors.endDate && (
-              <p id="endDate-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p
+                id="endDate-error"
+                role="alert"
+                className="mt-1 text-sm text-red-600 dark:text-red-400"
+              >
                 {errors.endDate}
               </p>
             )}
@@ -435,7 +507,9 @@ export default function LogEntryForm({
               id="flow"
               name="flow"
               value={fields.flow}
-              onChange={(e) => setField('flow', e.target.value as FlowLevel | '')}
+              onChange={(e) =>
+                setField('flow', e.target.value as FlowLevel | '')
+              }
               className={`${inputBase} ${inputNormal}`}
             >
               {FLOW_OPTIONS.map((opt) => (
@@ -453,7 +527,10 @@ export default function LogEntryForm({
             </legend>
             <div className="grid grid-cols-2 gap-2">
               {SYMPTOMS.map((symptom) => (
-                <label key={symptom} className="flex items-center gap-2 cursor-pointer min-h-[40px]">
+                <label
+                  key={symptom}
+                  className="flex items-center gap-2 cursor-pointer min-h-[40px]"
+                >
                   <input
                     type="checkbox"
                     checked={fields.symptoms.includes(symptom)}
@@ -476,7 +553,11 @@ export default function LogEntryForm({
             >
               Mood
             </p>
-            <div role="group" aria-labelledby="mood-label" className="flex gap-2">
+            <div
+              role="group"
+              aria-labelledby="mood-label"
+              className="flex gap-2"
+            >
               {([1, 2, 3, 4, 5] as const).map((n) => (
                 <button
                   key={n}
@@ -493,8 +574,12 @@ export default function LogEntryForm({
                   ].join(' ')}
                 >
                   <span className="flex flex-col items-center gap-1">
-                    <span className="text-xl leading-none" aria-hidden="true">{MOOD_CONFIG[n].face}</span>
-                    <span className="text-xs leading-none">{MOOD_CONFIG[n].label}</span>
+                    <span className="text-xl leading-none" aria-hidden="true">
+                      {MOOD_CONFIG[n].face}
+                    </span>
+                    <span className="text-xs leading-none">
+                      {MOOD_CONFIG[n].label}
+                    </span>
                   </span>
                 </button>
               ))}
@@ -519,7 +604,10 @@ export default function LogEntryForm({
               placeholder="Optional notes..."
               className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-100 dark:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-y"
             />
-            <p className="mt-1 text-xs text-neutral-400 text-right" aria-live="polite">
+            <p
+              className="mt-1 text-xs text-neutral-400 text-right"
+              aria-live="polite"
+            >
               {fields.notes.length}/500
             </p>
           </div>
@@ -531,7 +619,12 @@ export default function LogEntryForm({
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+        <Button
+          type="submit"
+          variant="primary"
+          loading={loading}
+          disabled={loading}
+        >
           {submitButtonText}
         </Button>
       </div>
