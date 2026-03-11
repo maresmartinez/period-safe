@@ -26,6 +26,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - clear intimacy data in clear all data button
 
+- editing intimacy entries now works correctly
+
 
 ## Documentation
 
