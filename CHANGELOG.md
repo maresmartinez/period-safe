@@ -35,6 +35,8 @@ PeriodSafe uses continuous deployment (CD) on Vercel — every commit to `main` 
 
 - always show prediction info modal
 
+- update file extensions from js/jsx to ts/tsx in README
+
 
 ## Features
 
