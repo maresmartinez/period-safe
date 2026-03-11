@@ -11,23 +11,42 @@ import YearView from './YearView.tsx';
 import JumpToDateModal from './JumpToDateModal.tsx';
 import PredictionModal from './PredictionModal.tsx';
 import LoadingSpinner from '../LoadingSpinner.tsx';
-import { toISODateString, formatWeekRangeLabel, getWeekStart, formatYearLabel } from '../../utils/dateUtils.ts';
+import {
+  toISODateString,
+  formatWeekRangeLabel,
+  getWeekStart,
+  formatYearLabel,
+} from '../../utils/dateUtils.ts';
 
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 export default function CalendarPage() {
   const { periods, loading, error, deletePeriod } = usePeriodData();
   const { deleteIntimacy } = useIntimacyData();
   const navigate = useNavigate();
+  const { predictions, cycleSummary } = usePeriodPrediction(periods);
   const {
-    predictions,
-    cycleSummary
-  } = usePeriodPrediction(periods);
-  const { view, anchorDate, setView, goToPrev, goToNext, goToToday, jumpToDate } =
-    useCalendarViewState();
+    view,
+    anchorDate,
+    setView,
+    goToPrev,
+    goToNext,
+    goToToday,
+    jumpToDate,
+  } = useCalendarViewState();
 
   const [jumpModalOpen, setJumpModalOpen] = useState(false);
   const [predictionModalOpen, setPredictionModalOpen] = useState(false);
@@ -44,14 +63,15 @@ export default function CalendarPage() {
     ? Math.round(cycleSummary.averageCycleLength)
     : null;
 
-  const predictedDuration = predictions.length > 0
-    ? (() => {
-        const p = predictions[0];
-        const a = new Date(p.predictedStartDate);
-        const b = new Date(p.predictedEndDate);
-        return Math.round((b.getTime() - a.getTime()) / 86400000) + 1;
-      })()
-    : null;
+  const predictedDuration =
+    predictions.length > 0
+      ? (() => {
+          const p = predictions[0];
+          const a = new Date(p.predictedStartDate);
+          const b = new Date(p.predictedEndDate);
+          return Math.round((b.getTime() - a.getTime()) / 86400000) + 1;
+        })()
+      : null;
 
   // For CalendarGrid (month view)
   const currentMonth = anchorDate.getMonth();
@@ -80,7 +100,10 @@ export default function CalendarPage() {
 
   if (error) {
     return (
-      <p role="alert" className="text-sm text-red-600 dark:text-red-400 px-4 py-8 text-center">
+      <p
+        role="alert"
+        className="text-sm text-red-600 dark:text-red-400 px-4 py-8 text-center"
+      >
         Failed to load periods: {(error as Error).message}
       </p>
     );
@@ -121,17 +144,19 @@ export default function CalendarPage() {
                     Period length
                   </p>
                   <p className="text-xl font-bold text-rose-500">
-                    {predictedDuration != null ? `~${predictedDuration} days` : '\u2014'}
+                    {predictedDuration != null
+                      ? `~${predictedDuration} days`
+                      : '\u2014'}
                   </p>
                 </div>
               </div>
               <button
-                  type="button"
-                  onClick={() => setPredictionModalOpen(true)}
-                  className="text-xs text-neutral-500 dark:text-neutral-400 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded"
-                >
-                  Learn more about predictions →
-                </button>
+                type="button"
+                onClick={() => setPredictionModalOpen(true)}
+                className="text-xs text-neutral-500 dark:text-neutral-400 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded"
+              >
+                Learn more about predictions →
+              </button>
             </>
           ) : (
             <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-2">
@@ -152,7 +177,9 @@ export default function CalendarPage() {
           onGoToNextMonth={handleGoToNextMonth}
           onEditPeriod={(period) => navigate('/log', { state: { period } })}
           onDeletePeriod={deletePeriod}
-          onEditIntimacy={(intimacy) => navigate('/log', { state: { intimacy } })}
+          onEditIntimacy={(intimacy) =>
+            navigate('/log', { state: { intimacy } })
+          }
           onDeleteIntimacy={deleteIntimacy}
         />
       )}
@@ -181,7 +208,10 @@ export default function CalendarPage() {
       {/* Calendar legend */}
       <div className="flex flex-wrap items-center gap-4 px-4 pt-3 pb-4 text-xs text-neutral-600 dark:text-neutral-400">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded-full bg-rose-500" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded-full bg-rose-500"
+            aria-hidden="true"
+          />
           Logged period
         </span>
         <span className="flex items-center gap-1.5">
@@ -192,7 +222,10 @@ export default function CalendarPage() {
           Predicted period
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded-full bg-purple-500" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded-full bg-purple-500"
+            aria-hidden="true"
+          />
           Predicted ovulation day
         </span>
         <span className="flex items-center gap-1.5">
@@ -203,7 +236,9 @@ export default function CalendarPage() {
           Predicted fertility window
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="text-amber-500 text-sm">★</span>
+          <span className="text-rose-500 text-sm bg-pink-100 dark:bg-pink-900 dark:text-rose-300 rounded-full w-4 h-4 flex items-center justify-center">
+            ♥
+          </span>
           Intimate day
         </span>
       </div>
