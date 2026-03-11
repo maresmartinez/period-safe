@@ -35,15 +35,19 @@ function CalendarCell({
   // Connecting bar classes for period range (start/mid/end)
   let barClass: string | null = null;
   if (periodState === 'start') {
-    barClass = 'absolute top-1/2 -translate-y-1/2 left-1/2 right-0 h-8 bg-rose-500 dark:bg-rose-600';
+    barClass =
+      'absolute top-1/2 -translate-y-1/2 left-1/2 right-0 h-8 bg-rose-500 dark:bg-rose-600';
   } else if (periodState === 'mid') {
-    barClass = 'absolute top-1/2 -translate-y-1/2 left-0 right-0 h-8 bg-rose-500 dark:bg-rose-600';
+    barClass =
+      'absolute top-1/2 -translate-y-1/2 left-0 right-0 h-8 bg-rose-500 dark:bg-rose-600';
   } else if (periodState === 'end') {
-    barClass = 'absolute top-1/2 -translate-y-1/2 left-0 right-1/2 h-8 bg-rose-500 dark:bg-rose-600';
+    barClass =
+      'absolute top-1/2 -translate-y-1/2 left-0 right-1/2 h-8 bg-rose-500 dark:bg-rose-600';
   }
 
   // Number circle classes
-  let circleClass = 'relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors';
+  let circleClass =
+    'relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors';
 
   if (isLoggedPeriod) {
     circleClass += ' bg-rose-500 dark:bg-rose-600 text-white';
@@ -53,9 +57,11 @@ function CalendarCell({
   } else if (isOvulation) {
     circleClass += ' bg-purple-500 dark:bg-purple-600 text-white';
   } else if (isFertilityWindow) {
-    circleClass += ' bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-dashed border-purple-400 dark:border-purple-600';
+    circleClass +=
+      ' bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-dashed border-purple-400 dark:border-purple-600';
   } else if (isPredicted) {
-    circleClass += ' bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-dashed border-rose-300 dark:border-rose-600';
+    circleClass +=
+      ' bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-dashed border-rose-300 dark:border-rose-600';
   } else if (isToday) {
     circleClass += ' text-rose-600 dark:text-rose-400 font-bold';
   } else if (isCurrentMonth) {
@@ -65,12 +71,12 @@ function CalendarCell({
   }
 
   if (isFocused) {
-    circleClass += ' ring-2 ring-rose-500 ring-offset-1 dark:ring-offset-neutral-900';
+    circleClass +=
+      ' ring-2 ring-rose-500 ring-offset-1 dark:ring-offset-neutral-900';
   }
 
   const tdClass =
-    'relative p-0 ' +
-    (isInteractive ? 'cursor-pointer' : 'cursor-default');
+    'relative p-0 ' + (isInteractive ? 'cursor-pointer' : 'cursor-default');
 
   return (
     <td
@@ -88,22 +94,24 @@ function CalendarCell({
       <div className="relative z-10 flex items-center justify-center min-h-[44px]">
         {isIntimacyDay && (
           <span
-            className="absolute -top-1 left-1/2 -translate-x-1/2 text-sm text-amber-600 bg-amber-100 dark:bg-amber-900 dark:text-amber-300 rounded-full w-4 h-4 flex items-center justify-center z-20"
+            className="absolute -top-1 left-1/2 -translate-x-1/2 text-sm text-rose-600 bg-pink-100 dark:bg-pink-900 dark:text-rose-300 rounded-full w-4 h-4 flex items-center justify-center z-20"
             aria-hidden="true"
           >
-            ★
+            ♥
           </span>
         )}
-        <div className={circleClass}>
-          {date.getDate()}
-        </div>
+        <div className={circleClass}>{date.getDate()}</div>
         {/* Today dot indicator (when not a period day) */}
-        {isToday && !isLoggedPeriod && !isOvulation && !isFertilityWindow && !isPredicted && (
-          <span
-            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-rose-500"
-            aria-hidden="true"
-          />
-        )}
+        {isToday &&
+          !isLoggedPeriod &&
+          !isOvulation &&
+          !isFertilityWindow &&
+          !isPredicted && (
+            <span
+              className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-rose-500"
+              aria-hidden="true"
+            />
+          )}
       </div>
     </td>
   );
